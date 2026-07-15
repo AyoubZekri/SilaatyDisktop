@@ -1,0 +1,55 @@
+import 'package:silaaty_desktop/core/constant/routes.dart';
+import 'package:silaaty_desktop/core/services/Services.dart';
+import 'package:get/get.dart';
+
+class Profailecontroller extends GetxController {
+
+
+  GotoSetting() {
+    Get.toNamed(Approutes.Setteng);
+  }
+
+  Gotocat() {
+    Get.toNamed(Approutes.shwocat);
+  }
+
+  GotoNotification() {
+    Get.toNamed(Approutes.notification);
+  }
+
+  // GotoZakat() {
+  //   Get.toNamed(Approutes.Zakat);
+  // }
+
+  GotoDealer() {
+    Get.toNamed(Approutes.Dealer, arguments: {
+      "type": 1,
+    });
+  }
+
+  GotoNecessary() {
+    Get.toNamed(Approutes.necessary);
+  }
+
+  GotoStok() {
+    Get.toNamed(Approutes.item);
+  }
+
+  GotoReport() {
+    Get.toNamed(Approutes.report);
+  }
+
+  GotoConvicts() {
+    Get.toNamed(Approutes.Convicts, arguments: {
+      "type": 2,
+    });
+  }
+
+  GotoSellers() {
+    // Get.toNamed(Approutes.sellers);
+  }
+
+  String? name = Get.find<Myservices>().sharedPreferences?.getString("name");
+  String? email = Get.find<Myservices>().sharedPreferences?.getString("email");
+  int? status = Get.find<Myservices>().sharedPreferences?.getInt("Status");
+}

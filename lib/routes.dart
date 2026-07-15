@@ -1,0 +1,32 @@
+
+
+import 'package:get/get.dart';
+
+import 'view/screen/SplashScreen.dart';
+import 'view/screen/SideBar.dart';
+
+
+import 'package:silaaty_desktop/core/constant/routes.dart';
+import 'package:silaaty_desktop/core/Mymiddleware/Mymiddleware.dart';
+import 'package:silaaty_desktop/view/screen/auth/auth_screen.dart';
+import 'package:silaaty_desktop/view/screen/auth/forget_password_screen.dart';
+import 'package:silaaty_desktop/view/screen/auth/verify_code_reset_screen.dart';
+import 'package:silaaty_desktop/view/screen/auth/reset_password_screen.dart';
+import 'package:silaaty_desktop/view/screen/auth/verify_code_signup_screen.dart';
+
+
+List<GetPage<dynamic>> routes = [
+  GetPage(
+    name: "/",
+    page: () => const AuthScreen(initialIsLogin: true),
+    middlewares: [Mymiddleware()],
+  ),
+  GetPage(name: Approutes.HomeScreen, page: () => const MainLayout()),
+  GetPage(name: Approutes.Login, page: () => const AuthScreen(initialIsLogin: true)),
+  GetPage(name: Approutes.SignUp, page: () => const AuthScreen(initialIsLogin: false)),
+  GetPage(name: Approutes.forgenPassword, page: () => const ForgetPasswordScreen()),
+  GetPage(name: Approutes.VerFiyCode, page: () => const VerifyCodeResetScreen()),
+  GetPage(name: Approutes.resePassword, page: () => const ResetPasswordScreen()),
+  GetPage(name: Approutes.VerifiycodeSignUp, page: () => const VerifyCodeSignUpScreen()),
+
+];

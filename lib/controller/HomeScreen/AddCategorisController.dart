@@ -1,0 +1,30 @@
+import 'package:silaaty_desktop/core/class/Statusrequest.dart';
+import 'package:silaaty_desktop/core/functions/handlingdatacontroller.dart';
+import 'package:silaaty_desktop/core/services/Services.dart';
+import 'package:silaaty_desktop/data/datasource/Remote/Categoris_data.dart';
+import 'package:silaaty_desktop/data/model/Categoris_model.dart';
+import 'package:get/get.dart';
+
+class Addcategoriscontroller extends GetxController {
+  CategorisData categorisData = CategorisData(Get.find());
+
+  Myservices myservices = Get.find();
+
+  List<Catdata> categories = [];
+  Statusrequest statusrequest = Statusrequest.none;
+
+
+  getCategoris() async {
+    var response = await categorisData.viewdata();
+    print("============================================== $response");
+    statusrequest = handlingData(response);
+    if (statusrequest == Statusrequest.success && response["status"] == 1) {
+      final model = Categoris_Model.fromJson(response);
+      categories = model.data?.catdata ?? [];
+    } else {
+      statusrequest = Statusrequest.failure;
+    }
+    update();
+  }
+
+}
