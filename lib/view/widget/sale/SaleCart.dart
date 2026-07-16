@@ -12,6 +12,7 @@ import '../../../core/functions/valiedinput.dart';
 import '../CustemTextField.dart';
 import '../cs/AddCSDialog.dart';
 import '../../../core/constant/imageassets.DART';
+import '../../../core/services/Services.dart';
 
 class SaleCart extends StatelessWidget {
   const SaleCart({super.key});
@@ -539,6 +540,8 @@ class SaleCart extends StatelessWidget {
     bool isDark,
     Color textColor,
   ) {
+    final int userTypeSale = Get.find<Myservices>().sharedPreferences?.getInt("sell_type") ?? 1;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Obx(() {
@@ -563,26 +566,28 @@ class SaleCart extends StatelessWidget {
                   },
                 ),
               ),
-              Expanded(
-                child: _buildSaleTypeButton(
-                  title: 'half_wholesale'.tr,
-                  isActive: controller.saleType.value == 2,
-                  isDark: isDark,
-                  onTap: () {
-                    controller.changeSaleType(2);
-                  },
+              if (userTypeSale >= 2)
+                Expanded(
+                  child: _buildSaleTypeButton(
+                    title: 'half_wholesale'.tr,
+                    isActive: controller.saleType.value == 2,
+                    isDark: isDark,
+                    onTap: () {
+                      controller.changeSaleType(2);
+                    },
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _buildSaleTypeButton(
-                  title: 'wholesale'.tr,
-                  isActive: controller.saleType.value == 3,
-                  isDark: isDark,
-                  onTap: () {
-                    controller.changeSaleType(3);
-                  },
+              if (userTypeSale >= 3)
+                Expanded(
+                  child: _buildSaleTypeButton(
+                    title: 'wholesale'.tr,
+                    isActive: controller.saleType.value == 3,
+                    isDark: isDark,
+                    onTap: () {
+                      controller.changeSaleType(3);
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         );

@@ -52,6 +52,12 @@ class Startpagecontrller extends GetxController {
         if (user["adresse"] != null)
           myServices.sharedPreferences!.setString("adresse", user["adresse"]);
         myServices.sharedPreferences!.setInt("Status", user["Status"]);
+        if (user["max_sellers"] != null) {
+          myServices.sharedPreferences!.setInt("max_sellers", int.tryParse(user["max_sellers"].toString()) ?? 0);
+        }
+        if (user["sell_type"] != null) {
+          myServices.sharedPreferences!.setInt("sell_type", int.tryParse(user["sell_type"].toString()) ?? 1);
+        }
         print("==================================${user["date_experiment"]}");
         if (user["date_experiment"] != null) {
           myServices.sharedPreferences!

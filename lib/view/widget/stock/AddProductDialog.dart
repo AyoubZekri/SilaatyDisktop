@@ -15,6 +15,7 @@ import 'dart:math';
 import '../../../core/functions/valiedinput.dart';
 import '../../../core/constant/imageassets.DART';
 import '../CustemTextField.dart';
+import '../../../core/services/Services.dart';
 
 class AddProductDialog extends StatelessWidget {
   final bool isEdit;
@@ -316,6 +317,7 @@ class _ProductFormState extends State<_ProductForm> {
   Widget build(BuildContext context) {
     final sidebarController = Get.find<Siedbarcontroller>();
     final primaryColor = AppColor.primaryPurple;
+    final int userTypeSale = Get.find<Myservices>().sharedPreferences?.getInt("sell_type") ?? 1;
 
     return Obx(() {
       final isDark = sidebarController.isDarkMode.value;
@@ -573,33 +575,37 @@ class _ProductFormState extends State<_ProductForm> {
                   const SizedBox(height: 24),
 
                   // Wholesale and Half Wholesale
-                  Row(
-                    textDirection: TextDirection.rtl,
-                    children: [
-                      Expanded(
-                        child: _buildPriceField(
-                          'wholesale_price'.tr,
-                          widget.wholesalePriceController,
-                          isDark,
-                          textColor,
-                          primaryColor,
-                          false,
+                  if (userTypeSale >= 2)
+                    Row(
+                      textDirection: TextDirection.rtl,
+                      children: [
+                        if (userTypeSale >= 3)
+                          Expanded(
+                            child: _buildPriceField(
+                              'wholesale_price'.tr,
+                              widget.wholesalePriceController,
+                              isDark,
+                              textColor,
+                              primaryColor,
+                              false,
+                            ),
+                          ),
+                        if (userTypeSale >= 3)
+                          const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildPriceField(
+                            'half_wholesale_price'.tr,
+                            widget.halfWholesalePriceController,
+                            isDark,
+                            textColor,
+                            primaryColor,
+                            false,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildPriceField(
-                          'half_wholesale_price'.tr,
-                          widget.halfWholesalePriceController,
-                          isDark,
-                          textColor,
-                          primaryColor,
-                          false,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+                      ],
+                    ),
+                  if (userTypeSale >= 2)
+                    const SizedBox(height: 24),
 
                   // Barcode Section
                   Column(

@@ -243,6 +243,10 @@ class MyTranslation extends Translations {
       "purchases_label": "المشتريات",
       "closing_balance": "الرصيد الختامي",
       "fallback_initial": "م",
+      // Subscription Expired Page
+      "must_activate_account": "يجب تفعيل حسابك",
+      "account_expired_or_inactive": "لقد انتهت صلاحية حسابك أو غير مفعل بعد، يرجى التواصل مع الإدارة لتفعيله.",
+      "logout_btn": "تسجيل الخروج",
       // Auth Pages
       "verify_email_title": "التحقق من البريد الإلكتروني",
       "verify_email_subtitle": "الرجاء إدخال الرمز المرسل إلى بريدك الإلكتروني.",
@@ -1035,6 +1039,10 @@ class MyTranslation extends Translations {
       "purchases_label": "Purchases",
       "closing_balance": "Closing Balance",
       "fallback_initial": "M",
+      // Subscription Expired Page
+      "must_activate_account": "You must activate your account",
+      "account_expired_or_inactive": "Your account has expired or is not yet active. Please contact administration to activate it.",
+      "logout_btn": "Logout",
       // Auth Pages
       "verify_email_title": "Verify Email",
       "verify_email_subtitle": "Please enter the code sent to your email.",

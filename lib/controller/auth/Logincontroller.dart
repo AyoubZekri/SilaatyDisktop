@@ -81,6 +81,19 @@ class Logincontroller extends GetxController {
             "Status",
             response["data"]["user"]["user"]["Status"],
           );
+
+          if (response["data"]["user"]["user"]["max_sellers"] != null) {
+            myServices.sharedPreferences!.setInt(
+              "max_sellers",
+              int.tryParse(response["data"]["user"]["user"]["max_sellers"].toString()) ?? 0,
+            );
+          }
+          if (response["data"]["user"]["user"]["sell_type"] != null) {
+            myServices.sharedPreferences!.setInt(
+              "sell_type",
+              int.tryParse(response["data"]["user"]["user"]["sell_type"].toString()) ?? 1,
+            );
+          }
           if (response["data"]["user"]["user"]["date_experiment"] != null) {
             myServices.sharedPreferences!.setString(
               "date_experiment",
@@ -106,25 +119,52 @@ class Logincontroller extends GetxController {
             }
           }
 
-          final today = DateTime.now();
           final status = response['data']["user"]["user"]['Status'];
 
-          if (status == 0) {
+          if (status == 3 || status == 4 || status == 5 || status == 6) {
+            Get.offAllNamed(Approutes.subscriptionExpiredPage);
+            return;
+          } else if (status == 9 || status == 10 || status == 13 || status == 14) {
+            Get.offAllNamed(Approutes.HomeScreen, arguments: {"fromlogin": 1});
+            return;
+          } else if (status == 0 || status == 1) {
             Get.offNamed(
               Approutes.VerifiycodeSignUp,
               arguments: {"email": Email.text},
             );
             reset();
-          } else if (status == 5 || status == 6) {
-            Get.offAllNamed(Approutes.HomeScreen, arguments: {"fromlogin": 1});
-          } else if ((status == 2 || status == 3 || status == 4) &&
-              experimentDate != null &&
-              today.isBefore(experimentDate)) {
-            Get.offAllNamed(Approutes.HomeScreen, arguments: {"fromlogin": 1});
-          } else if (status == 2 || status == 3 || status == 4) {
-            // Get.offAllNamed(Approutes.activationExpiredPage);
+            return;
+          }
+
+          if (experimentDate != null) {
+            DateTime currentDate = DateTime.now();
+            DateTime todayDate = DateTime(
+              currentDate.year,
+              currentDate.month,
+              currentDate.day,
+            );
+            
+            DateTime expDate = DateTime(
+              experimentDate.year,
+              experimentDate.month,
+              experimentDate.day,
+            );
+
+            if (status == 2 || [7, 8, 11, 12].contains(status)) {
+              if (todayDate.isAfter(expDate) ||
+                  todayDate.isAtSameMomentAs(expDate)) {
+                Get.offAllNamed(Approutes.subscriptionExpiredPage);
+              } else {
+                Get.offAllNamed(Approutes.HomeScreen, arguments: {"fromlogin": 1});
+              }
+              return;
+            } else {
+              Get.offAllNamed(Approutes.subscriptionExpiredPage);
+              return;
+            }
           } else {
-            showSnackbar("error".tr, "contact_admin".tr, Colors.red);
+            Get.offAllNamed(Approutes.subscriptionExpiredPage);
+            return;
           }
         }
       } else {

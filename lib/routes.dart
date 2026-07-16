@@ -13,13 +13,13 @@ import 'package:silaaty_desktop/view/screen/auth/forget_password_screen.dart';
 import 'package:silaaty_desktop/view/screen/auth/verify_code_reset_screen.dart';
 import 'package:silaaty_desktop/view/screen/auth/reset_password_screen.dart';
 import 'package:silaaty_desktop/view/screen/auth/verify_code_signup_screen.dart';
+import 'package:silaaty_desktop/view/screen/subscription_expired_screen.dart';
 
 
 List<GetPage<dynamic>> routes = [
   GetPage(
     name: "/",
-    page: () => const AuthScreen(initialIsLogin: true),
-    middlewares: [Mymiddleware()],
+    page: () => const SplashScreen(),
   ),
   GetPage(name: Approutes.HomeScreen, page: () => const MainLayout()),
   GetPage(name: Approutes.Login, page: () => const AuthScreen(initialIsLogin: true)),
@@ -28,5 +28,6 @@ List<GetPage<dynamic>> routes = [
   GetPage(name: Approutes.VerFiyCode, page: () => const VerifyCodeResetScreen()),
   GetPage(name: Approutes.resePassword, page: () => const ResetPasswordScreen()),
   GetPage(name: Approutes.VerifiycodeSignUp, page: () => const VerifyCodeSignUpScreen()),
+  GetPage(name: Approutes.subscriptionExpiredPage, page: () => const SubscriptionExpiredScreen()),
 
 ];

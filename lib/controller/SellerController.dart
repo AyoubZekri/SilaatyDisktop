@@ -6,9 +6,11 @@ import 'package:silaaty_desktop/data/datasource/Remote/SellerData.dart';
 
 import '../core/class/Crud.dart';
 import '../core/functions/handlingdatacontroller.dart';
+import '../core/services/Services.dart';
 
 class SellerController extends GetxController {
   SellerData sellerData = SellerData(Get.find<Crud>());
+  Myservices myServices = Get.find();
   Statusrequest statusrequest = Statusrequest.none;
 
   List sellers = [];
@@ -67,6 +69,12 @@ class SellerController extends GetxController {
 
   addSeller() async {
     if (!formState.currentState!.validate()) return;
+
+    int maxSellers = myServices.sharedPreferences!.getInt("max_sellers") ?? 0;
+    if (sellers.length >= maxSellers) {
+      showSnackbar("تنبيه".tr, "عذراً، لقد وصلت للحد الأقصى لعدد البائعين المسموح به".tr, Colors.orange);
+      return;
+    }
 
     statusrequest = Statusrequest.loadeng;
     update();

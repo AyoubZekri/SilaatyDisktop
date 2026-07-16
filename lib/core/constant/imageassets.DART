@@ -7,6 +7,7 @@ class  Appimageassets {
   static const String en ="$rootimage/EN.jpeg";
 
   static const String test2 ="$rootimage/Silaaty.png";
+  static const String silaatyROW  ="$rootimage/SilaatyROW.png";
   static const String avater ="$rootimage/Avatar.jpg";
 
 

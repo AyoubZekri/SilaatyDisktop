@@ -15,8 +15,9 @@ class SidebarWidget extends StatelessWidget {
     final controller = Get.find<Siedbarcontroller>();
 
     return Obx(() {
+      final isMobile = MediaQuery.of(context).size.width < 1200;
       final isDark = controller.isDarkMode.value;
-      final isSidebarExpanded = controller.isSidebarExpanded.value;
+      final isSidebarExpanded = isMobile ? true : controller.isSidebarExpanded.value;
       return AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         width: isSidebarExpanded ? 280 : 85,
@@ -32,56 +33,41 @@ class SidebarWidget extends StatelessWidget {
         child: Column(
           children: [
             // Sidebar Header
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 12.0, left: 12.0),
-                child: IconButton(
-                  onPressed: controller.toggleSidebarSize,
-                  icon: Icon(
-                    isSidebarExpanded ? Icons.menu_open_rounded : Icons.menu_rounded,
-                    color: AppColor.primaryPurple,
-                  ),
-                ),
+            Container(
+              padding: EdgeInsets.only(
+                top: 24.0,
+                bottom: 24.0,
+                left: isSidebarExpanded ? 12.0 : 0,
+                right: isSidebarExpanded ? 24.0 : 0,
               ),
+              alignment: Alignment.center,
+              child: isSidebarExpanded
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset(
+                          Appimageassets.silaatyROW,
+                          height: 38,
+                          fit: BoxFit.contain,
+                        ),
+                        if (!isMobile)
+                          IconButton(
+                            onPressed: controller.toggleSidebarSize,
+                            icon: const Icon(
+                              Icons.menu_open_rounded,
+                              color: AppColor.primaryPurple,
+                            ),
+                          ),
+                      ],
+                    )
+                  : IconButton(
+                      onPressed: controller.toggleSidebarSize,
+                      icon: const Icon(
+                        Icons.menu_rounded,
+                        color: AppColor.primaryPurple,
+                      ),
+                    ),
             ),
-            if (isSidebarExpanded)
-              Padding(
-                padding: const EdgeInsets.only(
-                  right: 24.0,
-                  left: 24.0,
-                  bottom: 30.0,
-                ),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'app_name'.tr,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AppColor.primaryPurple,
-                        ),
-                      ),
-                      Text(
-                        'system_management'.tr,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDark
-                              ? AppColor.textSecondary
-                              : Colors.grey.shade500,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              const SizedBox(height: 20),
 
             // Menu Items
             Expanded(
@@ -98,24 +84,50 @@ class SidebarWidget extends StatelessWidget {
                     final isExpanded = controller.expandedIndex.value == index;
 
                     if (subPages.isEmpty) {
-                      return _buildMainItem(controller, index, screen, isSelected, isDark);
+                      return _buildMainItem(
+                        controller,
+                        index,
+                        screen,
+                        isSelected,
+                        isDark,
+                        isSidebarExpanded,
+                      );
                     } else {
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildMainItem(controller, index, screen, isSelected, isDark, 
-                              hasSubPages: true, 
-                              isExpanded: isExpanded,
-                              onExpandToggle: () => controller.toggleExpand(index)),
+                          _buildMainItem(
+                            controller,
+                            index,
+                            screen,
+                            isSelected,
+                            isDark,
+                            isSidebarExpanded,
+                            hasSubPages: true,
+                            isExpanded: isExpanded,
+                            onExpandToggle: () =>
+                                controller.toggleExpand(index),
+                          ),
                           if (isExpanded)
                             ...subPages.asMap().entries.map((subEntry) {
                               final subIndex = subEntry.key;
                               final subPage = subEntry.value;
-                              final isSubSelected = controller.currentSubIndex.value == subIndex && isSelected;
-                              
+                              final isSubSelected =
+                                  controller.currentSubIndex.value ==
+                                      subIndex &&
+                                  isSelected;
+
                               return Padding(
                                 padding: const EdgeInsets.only(top: 4),
-                                child: _buildSubItem(controller, index, subIndex, subPage, isSubSelected, isDark),
+                                child: _buildSubItem(
+                                  controller,
+                                  index,
+                                  subIndex,
+                                  subPage,
+                                  isSubSelected,
+                                  isDark,
+                                  isSidebarExpanded,
+                                ),
                               );
                             }).toList(),
                         ],
@@ -159,7 +171,11 @@ class SidebarWidget extends StatelessWidget {
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                            const Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'add_sales'.tr,
@@ -171,7 +187,11 @@ class SidebarWidget extends StatelessWidget {
                             ),
                           ],
                         )
-                      : const Icon(Icons.add_rounded, color: Colors.white, size: 24),
+                      : const Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                 ),
               ),
             ),
@@ -181,8 +201,17 @@ class SidebarWidget extends StatelessWidget {
     });
   }
 
-  Widget _buildMainItem(Siedbarcontroller controller, int index, Map screen, bool isSelected, bool isDark, {bool hasSubPages = false, bool isExpanded = false, VoidCallback? onExpandToggle}) {
-    final isSidebarExpanded = controller.isSidebarExpanded.value;
+  Widget _buildMainItem(
+    Siedbarcontroller controller,
+    int index,
+    Map screen,
+    bool isSelected,
+    bool isDark,
+    bool isSidebarExpanded, {
+    bool hasSubPages = false,
+    bool isExpanded = false,
+    VoidCallback? onExpandToggle,
+  }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       decoration: BoxDecoration(
@@ -204,14 +233,21 @@ class SidebarWidget extends StatelessWidget {
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: isSidebarExpanded ? 16 : 0, vertical: 14),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSidebarExpanded ? 16 : 0,
+            vertical: 14,
+          ),
           child: Row(
             textDirection: TextDirection.rtl,
-            mainAxisAlignment: isSidebarExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+            mainAxisAlignment: isSidebarExpanded
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
             children: [
               Icon(
                 screen['icon'],
-                color: isSelected ? Colors.white : (isDark ? AppColor.textDark : const Color(0xFF8E92BC)),
+                color: isSelected
+                    ? Colors.white
+                    : (isDark ? AppColor.textDark : const Color(0xFF8E92BC)),
                 size: 22,
               ),
               if (isSidebarExpanded) ...[
@@ -221,19 +257,27 @@ class SidebarWidget extends StatelessWidget {
                     screen['name'].toString().tr,
                     style: TextStyle(
                       fontSize: 15,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                      color: isSelected ? Colors.white : (isDark ? AppColor.textDark : const Color(0xFF5D596C)),
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w600,
+                      color: isSelected
+                          ? Colors.white
+                          : (isDark
+                                ? AppColor.textDark
+                                : const Color(0xFF5D596C)),
                       fontFamily: 'Cairo',
                     ),
                   ),
                 ),
                 if (hasSubPages)
                   Icon(
-                    isExpanded ? Icons.expand_more_rounded : Icons.chevron_left_rounded,
+                    isExpanded
+                        ? Icons.expand_more_rounded
+                        : Icons.chevron_left_rounded,
                     color: isSelected ? Colors.white : Colors.grey,
                     size: 20,
                   ),
-              ]
+              ],
             ],
           ),
         ),
@@ -241,8 +285,15 @@ class SidebarWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSubItem(Siedbarcontroller controller, int parentIndex, int subIndex, Map subPage, bool isSelected, bool isDark) {
-    final isSidebarExpanded = controller.isSidebarExpanded.value;
+  Widget _buildSubItem(
+    Siedbarcontroller controller,
+    int parentIndex,
+    int subIndex,
+    Map subPage,
+    bool isSelected,
+    bool isDark,
+    bool isSidebarExpanded,
+  ) {
     return InkWell(
       onTap: () {
         controller.currentPage.value = parentIndex;
@@ -253,17 +304,25 @@ class SidebarWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         margin: EdgeInsets.only(right: isSidebarExpanded ? 32 : 0),
         decoration: BoxDecoration(
-          color: isSelected ? AppColor.primaryPurple.withOpacity(0.1) : Colors.transparent,
+          color: isSelected
+              ? AppColor.primaryPurple.withOpacity(0.1)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
-          border: isSelected ? Border.all(color: AppColor.primaryPurple.withOpacity(0.2)) : null,
+          border: isSelected
+              ? Border.all(color: AppColor.primaryPurple.withOpacity(0.2))
+              : null,
         ),
         child: Row(
           textDirection: TextDirection.rtl,
-          mainAxisAlignment: isSidebarExpanded ? MainAxisAlignment.start : MainAxisAlignment.center,
+          mainAxisAlignment: isSidebarExpanded
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
           children: [
             Icon(
               subPage['icon'],
-              color: isSelected ? AppColor.primaryPurple : (isDark ? Colors.white38 : Colors.grey),
+              color: isSelected
+                  ? AppColor.primaryPurple
+                  : (isDark ? Colors.white38 : Colors.grey),
               size: 18,
             ),
             if (isSidebarExpanded) ...[
@@ -274,12 +333,14 @@ class SidebarWidget extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? AppColor.primaryPurple : (isDark ? Colors.white38 : Colors.grey.shade600),
+                    color: isSelected
+                        ? AppColor.primaryPurple
+                        : (isDark ? Colors.white38 : Colors.grey.shade600),
                     fontFamily: 'Cairo',
                   ),
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),
@@ -300,7 +361,9 @@ class MainLayout extends StatelessWidget {
         return Obx(() {
           final isDark = controller.isDarkMode.value;
           return Scaffold(
-            backgroundColor: isDark ? AppColor.backgroundDark : AppColor.backgroundLight,
+            backgroundColor: isDark
+                ? AppColor.backgroundDark
+                : AppColor.backgroundLight,
             drawer: isMobile ? const Drawer(child: SidebarWidget()) : null,
             body: Directionality(
               textDirection: TextDirection.rtl,
@@ -313,11 +376,15 @@ class MainLayout extends StatelessWidget {
                         TopBar(isMobile: isMobile),
                         Expanded(
                           child: Obx(() {
-                            if (controller.currentSubPage.value != null && controller.expandedIndex.value != null) {
-                               return controller.currentSubPage.value!();
+                            if (controller.currentSubPage.value != null &&
+                                controller.expandedIndex.value != null) {
+                              return controller.currentSubPage.value!();
                             }
-                            final screen = controller.screens[controller.currentPage.value];
-                            return screen['page'] != null ? screen['page']() : const Center(child: Text('Page Not Found'));
+                            final screen = controller
+                                .screens[controller.currentPage.value];
+                            return screen['page'] != null
+                                ? screen['page']()
+                                : const Center(child: Text('Page Not Found'));
                           }),
                         ),
                       ],
@@ -353,44 +420,54 @@ class TopBar extends StatelessWidget {
           color: isDark ? AppColor.surfaceDark : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-             BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Row(
           textDirection: TextDirection.rtl,
           children: [
             if (isMobile)
-              IconButton(icon: const Icon(Icons.menu, color: AppColor.primaryPurple), onPressed: () => Scaffold.of(context).openDrawer()),
+              IconButton(
+                icon: const Icon(Icons.menu, color: AppColor.primaryPurple),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
 
             // Search Field
-            Container(
-              width: 300,
-              height: 40,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: TextField(
-                textAlign: TextAlign.right,
-                style: TextStyle(color: textColor, fontSize: 13),
-                decoration: InputDecoration(
-                  hintText: 'search_system'.tr,
-                  hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
-                  prefixIcon: const Icon(Icons.search_rounded, color: Colors.grey, size: 18),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                ),
-              ),
-            ),
-
+            // Container(
+            //   width: 300,
+            //   height: 40,
+            //   decoration: BoxDecoration(
+            //     color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9),
+            //     borderRadius: BorderRadius.circular(10),
+            //   ),
+            //   child: TextField(
+            //     textAlign: TextAlign.right,
+            //     style: TextStyle(color: textColor, fontSize: 13),
+            //     decoration: InputDecoration(
+            //       hintText: 'search_system'.tr,
+            //       hintStyle: const TextStyle(fontSize: 12, color: Colors.grey),
+            //       prefixIcon: const Icon(Icons.search_rounded, color: Colors.grey, size: 18),
+            //       border: InputBorder.none,
+            //       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            //     ),
+            //   ),
+            // ),
             const Spacer(),
 
-            _buildTopButton(onPressed: () => controller.toggleDarkMode(), icon: isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded, isDark: isDark),
+            _buildTopButton(
+              onPressed: () => controller.toggleDarkMode(),
+              icon: isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              isDark: isDark,
+            ),
             const SizedBox(width: 12),
             _buildLanguageToggle(isDark),
             const SizedBox(width: 12),
-            _buildTopButton(onPressed: () {}, icon: Icons.notifications_none_rounded, hasBadge: true, isDark: isDark),
-            const SizedBox(width: 20),
+            // _buildTopButton(onPressed: () {}, icon: Icons.notifications_none_rounded, hasBadge: true, isDark: isDark),
+            // const SizedBox(width: 20),
 
             // Profile Section
             InkWell(
@@ -399,7 +476,10 @@ class TopBar extends StatelessWidget {
               },
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
                 child: Row(
                   children: [
                     Column(
@@ -407,12 +487,24 @@ class TopBar extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          controller.name.value.isEmpty ? "mock_user_name".tr : controller.name.value,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textColor, fontFamily: 'Cairo')
+                          controller.name.value.isEmpty
+                              ? "mock_user_name".tr
+                              : controller.name.value,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: textColor,
+                            fontFamily: 'Cairo',
+                          ),
                         ),
                         Text(
-                          controller.hallname.value.isEmpty ? "mock_user_role".tr : controller.hallname.value,
-                          style: const TextStyle(fontSize: 11, color: Colors.grey)
+                          controller.hallname.value.isEmpty
+                              ? "mock_user_role".tr
+                              : controller.hallname.value,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -422,11 +514,14 @@ class TopBar extends StatelessWidget {
                       backgroundColor: Colors.white,
                       backgroundImage: () {
                         final path = controller.imagePath.value;
-                        if (path != null && path.isNotEmpty && !path.startsWith('http') && File(path).existsSync()) {
+                        if (path != null &&
+                            path.isNotEmpty &&
+                            !path.startsWith('http') &&
+                            File(path).existsSync()) {
                           return FileImage(File(path)) as ImageProvider;
                         }
                         return const AssetImage(Appimageassets.avater);
-                      }()
+                      }(),
                     ),
                   ],
                 ),
@@ -446,21 +541,38 @@ class TopBar extends StatelessWidget {
       height: 40,
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : const Color(0xFFF1F5F9),
+        color: isDark
+            ? Colors.white.withOpacity(0.05)
+            : const Color(0xFFF1F5F9),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildLangOption(label: "AR", isActive: isArabic, isDark: isDark, onTap: () => localeController.changeLang("ar")),
+          _buildLangOption(
+            label: "AR",
+            isActive: isArabic,
+            isDark: isDark,
+            onTap: () => localeController.changeLang("ar"),
+          ),
           const SizedBox(width: 2),
-          _buildLangOption(label: "EN", isActive: !isArabic, isDark: isDark, onTap: () => localeController.changeLang("en")),
+          _buildLangOption(
+            label: "EN",
+            isActive: !isArabic,
+            isDark: isDark,
+            onTap: () => localeController.changeLang("en"),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildLangOption({required String label, required bool isActive, required bool isDark, required VoidCallback onTap}) {
+  Widget _buildLangOption({
+    required String label,
+    required bool isActive,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(6),
@@ -473,18 +585,33 @@ class TopBar extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(color: isActive ? Colors.white : (isDark ? Colors.white30 : Colors.black26), fontWeight: FontWeight.bold, fontSize: 11),
+          style: TextStyle(
+            color: isActive
+                ? Colors.white
+                : (isDark ? Colors.white30 : Colors.black26),
+            fontWeight: FontWeight.bold,
+            fontSize: 11,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTopButton({required VoidCallback onPressed, required IconData icon, bool hasBadge = false, bool isDark = false}) {
+  Widget _buildTopButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+    bool hasBadge = false,
+    bool isDark = false,
+  }) {
     return Stack(
       children: [
         IconButton(
           onPressed: onPressed,
-          icon: Icon(icon, color: isDark ? Colors.white70 : Colors.black54, size: 22),
+          icon: Icon(
+            icon,
+            color: isDark ? Colors.white70 : Colors.black54,
+            size: 22,
+          ),
         ),
         if (hasBadge)
           Positioned(
@@ -493,7 +620,14 @@ class TopBar extends StatelessWidget {
             child: Container(
               width: 7,
               height: 7,
-              decoration: BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle, border: Border.all(color: isDark ? AppColor.surfaceDark : Colors.white, width: 1.5)),
+              decoration: BoxDecoration(
+                color: Colors.redAccent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark ? AppColor.surfaceDark : Colors.white,
+                  width: 1.5,
+                ),
+              ),
             ),
           ),
       ],

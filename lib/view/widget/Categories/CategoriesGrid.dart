@@ -37,7 +37,7 @@ class CategoriesGrid extends StatelessWidget {
                   crossAxisCount = 4;
                 }
 
-                double aspectRatio = 0.9;
+                double aspectRatio = 0.8;
                 if (crossAxisCount <= 2) aspectRatio = 1.1;
 
                 return Padding(
