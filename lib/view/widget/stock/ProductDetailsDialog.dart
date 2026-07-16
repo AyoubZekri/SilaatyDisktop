@@ -85,7 +85,7 @@ class ProductDetailsDialog extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'تفاصيل المنتج',
+                          'product_details'.tr,
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class ProductDetailsDialog extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                product.productName ?? 'بدون اسم',
+                                product.productName ?? 'unnamed'.tr,
                                 style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -163,7 +163,7 @@ class ProductDetailsDialog extends StatelessWidget {
                                         Icon(Icons.qr_code_2_rounded, size: 16, color: subtitleColor),
                                         const SizedBox(width: 6),
                                         Text(
-                                          product.codepar?.toString() ?? 'بدون باركود',
+                                          product.codepar?.toString() ?? 'no_barcode'.tr,
                                           style: TextStyle(
                                             fontSize: 14,
                                             color: subtitleColor,
@@ -226,9 +226,9 @@ class ProductDetailsDialog extends StatelessWidget {
                     Row(
                       textDirection: TextDirection.rtl,
                       children: [
-                        Expanded(child: _buildInfoCard('سعر الشراء', '${_formatNum(purchase)} د.ج', Icons.shopping_cart_checkout_rounded, Colors.orange, isDark, fieldColor, textColor, subtitleColor)),
+                        Expanded(child: _buildInfoCard('purchase_price'.tr, '${_formatNum(purchase)} ${'dzd'.tr}', Icons.shopping_cart_checkout_rounded, Colors.orange, isDark, fieldColor, textColor, subtitleColor)),
                         const SizedBox(width: 16),
-                        Expanded(child: _buildInfoCard('سعر البيع', '${_formatNum(sale)} د.ج', Icons.sell_rounded, const Color(0xFF28C76F), isDark, fieldColor, textColor, subtitleColor)),
+                        Expanded(child: _buildInfoCard('sale_price'.tr, '${_formatNum(sale)} ${'dzd'.tr}', Icons.sell_rounded, const Color(0xFF28C76F), isDark, fieldColor, textColor, subtitleColor)),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -236,9 +236,9 @@ class ProductDetailsDialog extends StatelessWidget {
                     Row(
                       textDirection: TextDirection.rtl,
                       children: [
-                        Expanded(child: _buildInfoCard('نصف جملة', '${_formatNum(product.productPriceHalfWholesale)} د.ج', Icons.local_offer_rounded, Colors.blue, isDark, fieldColor, textColor, subtitleColor)),
+                        Expanded(child: _buildInfoCard('half_wholesale_price'.tr, '${_formatNum(product.productPriceHalfWholesale)} ${'dzd'.tr}', Icons.local_offer_rounded, Colors.blue, isDark, fieldColor, textColor, subtitleColor)),
                         const SizedBox(width: 16),
-                        Expanded(child: _buildInfoCard('جملة', '${_formatNum(product.productPriceWholesale)} د.ج', Icons.inventory_rounded, Colors.purple, isDark, fieldColor, textColor, subtitleColor)),
+                        Expanded(child: _buildInfoCard('wholesale_price'.tr, '${_formatNum(product.productPriceWholesale)} ${'dzd'.tr}', Icons.inventory_rounded, Colors.purple, isDark, fieldColor, textColor, subtitleColor)),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -248,8 +248,8 @@ class ProductDetailsDialog extends StatelessWidget {
                       children: [
                         Expanded(
                           child: _buildInfoCard(
-                            'المخزون المتوفر',
-                            '${_formatNum(qty)} ${(product.type == 2) ? 'كغ' : 'وحدة'}',
+                            'available_stock'.tr,
+                            '${_formatNum(qty)} ${(product.type == 2) ? 'kg_unit'.tr : 'piece_unit'.tr}',
                             Icons.all_inbox_rounded,
                             qty <= 0 ? Colors.red : Colors.teal,
                             isDark,
@@ -262,9 +262,9 @@ class ProductDetailsDialog extends StatelessWidget {
                         Expanded(
                           child: Column(
                             children: [
-                              _buildMiniRow('إجمالي الشراء', '${_formatNum(totalPurchase)} د.ج', isDark, fieldColor, textColor, subtitleColor),
+                              _buildMiniRow('total_purchase'.tr, '${_formatNum(totalPurchase)} ${'dzd'.tr}', isDark, fieldColor, textColor, subtitleColor),
                               const SizedBox(height: 8),
-                              _buildMiniRow('إجمالي البيع المتوقع', '${_formatNum(totalSale)} د.ج', isDark, fieldColor, textColor, subtitleColor),
+                              _buildMiniRow('expected_total_sale'.tr, '${_formatNum(totalSale)} ${'dzd'.tr}', isDark, fieldColor, textColor, subtitleColor),
                             ],
                           ),
                         ),

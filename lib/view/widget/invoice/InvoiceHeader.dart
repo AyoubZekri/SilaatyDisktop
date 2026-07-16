@@ -33,7 +33,7 @@ class InvoiceHeader extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'تتبع جميع مبيعاتك وحالات الدفع بشكل تفصيلي',
+              'track_sales_payments'.tr,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey : Colors.grey.shade500,

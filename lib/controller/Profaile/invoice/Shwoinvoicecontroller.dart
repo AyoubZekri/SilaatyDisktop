@@ -19,6 +19,7 @@ import 'package:image/image.dart' as img;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 
 import '../../../core/constant/Colorapp.dart';
+import '../../../core/constant/imageassets.DART';
 import '../../../core/functions/Snacpar.dart';
 import '../../../core/services/Services.dart';
 import '../../../data/model/InvoiceModel.dart';
@@ -63,7 +64,10 @@ class Shwoinvoicecontroller extends GetxController {
   Editinvoise(String invuuid) async {
     if (int.parse(paymentPrice.text) > getRemainingAmount()) {
       return showSnackbar(
-          "تنبيه".tr, "مبلغ الدفع اكثر من المستحق".tr, Colors.orange);
+        "alert".tr,
+        "payment_more_than_due".tr,
+        Colors.orange,
+      );
     }
     paymentpriceinvoise = double.parse(paymentPrice.text) + paymentpriceinvoise;
     Map<String, Object?> data = {
@@ -93,16 +97,19 @@ class Shwoinvoicecontroller extends GetxController {
   Future<void> Editdiscount(String invuuid) async {
     if (double.parse(discount.text) < 0) {
       return showSnackbar(
-          "تنبيه".tr, "لا يمكن أن يكون الخصم أقل من 0".tr, Colors.orange);
+        "alert".tr,
+        "discount_cannot_be_less_than_zero".tr,
+        Colors.orange,
+      );
     }
     if (double.parse(discount.text) > getRemainingAmount()) {
-      return showSnackbar("تنبيه".tr,
-          "لا يمكن أن يكون الخصم أكبر من المبلغ الإجمالي".tr, Colors.orange);
+      return showSnackbar(
+        "alert".tr,
+        "discount_cannot_be_greater_than_total".tr,
+        Colors.orange,
+      );
     }
-    Map<String, Object?> data = {
-      "uuid": invuuid,
-      'discount': discount.text,
-    };
+    Map<String, Object?> data = {"uuid": invuuid, 'discount': discount.text};
     var result = await invoicedata.Editinvoise(data);
     if (result) {
       discount.clear();
@@ -124,9 +131,7 @@ class Shwoinvoicecontroller extends GetxController {
   }
 
   deleteInvoice(String invuuid) async {
-    Map<String, Object?> data = {
-      "uuid": invuuid,
-    };
+    Map<String, Object?> data = {"uuid": invuuid};
     var result = await invoicedata.deleteinvoice(data);
     if (result["status"] == 1) {
       Get.back();
@@ -139,7 +144,10 @@ class Shwoinvoicecontroller extends GetxController {
 
   Future<void> editProduct(String uuidSale, double quantity) async {
     final result = await saledata.updateSaleQuantity(
-        uuidSale, quantity , getRemainingAmount());
+      uuidSale,
+      quantity,
+      getRemainingAmount(),
+    );
     if (result["status"] == 1) {
       qtyController.clear();
       Get.find<RefreshService>().fire();
@@ -154,7 +162,7 @@ class Shwoinvoicecontroller extends GetxController {
       }
       Shwoinvoice();
     } else if (result["status"] == 2) {
-      showSnackbar("error".tr, "المخزون لا يكفي".tr, Colors.red);
+      showSnackbar("error".tr, "insufficient_stock".tr, Colors.red);
     } else {
       showSnackbar("error".tr, "operation_failed".tr, Colors.red);
       statusrequest = Statusrequest.failure;
@@ -248,9 +256,11 @@ class Shwoinvoicecontroller extends GetxController {
   Future<void> generateArabicPdf() async {
     final pdf = pw.Document();
     final arabicFont = pw.Font.ttf(
-        await rootBundle.load("assets/fonts/static/Amiri-Regular.ttf"));
+      await rootBundle.load("assets/fonts/static/Amiri-Regular.ttf"),
+    );
     final englishFont = pw.Font.ttf(
-        await rootBundle.load("assets/fonts/static/Wittgenstein-Regular.ttf"));
+      await rootBundle.load("assets/fonts/static/Wittgenstein-Regular.ttf"),
+    );
     final productsList = productSale?.products ?? [];
     final address = myServices.sharedPreferences!.getString("adresse");
     final phoneNumber = myServices.sharedPreferences!.getString("phone");
@@ -267,8 +277,9 @@ class Shwoinvoicecontroller extends GetxController {
       invoices?.familyName,
       invoices?.name,
     ].where((e) => e != null && e.trim().isNotEmpty).join(" ");
-    final safeCustomerName =
-        customerName.isEmpty ? "غير معروف".tr : customerName;
+    final safeCustomerName = customerName.isEmpty
+        ? "unknown".tr
+        : customerName;
 
     bool isArabicText(String text) {
       final arabicRegex = RegExp(r'[\u0600-\u06FF]');
@@ -279,11 +290,11 @@ class Shwoinvoicecontroller extends GetxController {
 
     final List<List<String>> tableData = [
       [
-        "رقم".tr,
-        "المنتج".tr,
-        "الكمية".tr,
-        "سعر الوحدة".tr,
-        "السعر الإجمالي".tr
+        "number_abbr".tr,
+        "product".tr,
+        "quantity".tr,
+        "unit_price".tr,
+        "total_price".tr,
       ],
       ...List.generate(productsList.length, (index) {
         final p = productsList[index];
@@ -310,9 +321,12 @@ class Shwoinvoicecontroller extends GetxController {
               pw.Container(
                 padding: pw.EdgeInsets.all(10),
                 decoration: pw.BoxDecoration(
-                    borderRadius: pw.BorderRadius.circular(10),
-                    border: pw.Border.all(
-                        width: 2, color: PdfColor.fromHex("#4F46E5"))),
+                  borderRadius: pw.BorderRadius.circular(10),
+                  border: pw.Border.all(
+                    width: 2,
+                    color: PdfColor.fromHex("#4F46E5"),
+                  ),
+                ),
                 child: pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -324,8 +338,8 @@ class Shwoinvoicecontroller extends GetxController {
                         pw.Directionality(
                           textDirection:
                               nameSaler != null && isArabicText(nameSaler)
-                                  ? pw.TextDirection.rtl
-                                  : pw.TextDirection.ltr,
+                              ? pw.TextDirection.rtl
+                              : pw.TextDirection.ltr,
                           child: pw.Text(
                             nameSaler ?? "",
                             style: pw.TextStyle(
@@ -340,19 +354,23 @@ class Shwoinvoicecontroller extends GetxController {
                         pw.Directionality(
                           textDirection:
                               address != null && isArabicText(address)
-                                  ? pw.TextDirection.rtl
-                                  : pw.TextDirection.ltr,
-                          child: pw.Text("${address ?? ""}",
-                              style: pw.TextStyle(
-                                fontSize: 12,
-                                font: address != null && isArabicText(address)
-                                    ? arabicFont
-                                    : englishFont,
-                              )),
+                              ? pw.TextDirection.rtl
+                              : pw.TextDirection.ltr,
+                          child: pw.Text(
+                            "${address ?? ""}",
+                            style: pw.TextStyle(
+                              fontSize: 12,
+                              font: address != null && isArabicText(address)
+                                  ? arabicFont
+                                  : englishFont,
+                            ),
+                          ),
                         ),
                         pw.SizedBox(height: 10),
-                        pw.Text(phoneNumber ?? "",
-                            style: pw.TextStyle(fontSize: 12)),
+                        pw.Text(
+                          phoneNumber ?? "",
+                          style: pw.TextStyle(fontSize: 12),
+                        ),
                       ],
                     ),
                     if (logo != null) pw.Image(logo, width: 80, height: 80),
@@ -362,13 +380,14 @@ class Shwoinvoicecontroller extends GetxController {
               pw.SizedBox(height: 10),
               pw.Center(
                 child: pw.Text(
-                  "فاتورة بيع".tr,
+                  "sales_invoice".tr,
                   style: pw.TextStyle(
-                      font: Get.locale?.languageCode == "ar"
-                          ? arabicFont
-                          : englishFont,
-                      fontSize: 18,
-                      fontWeight: pw.FontWeight.bold),
+                    font: Get.locale?.languageCode == "ar"
+                        ? arabicFont
+                        : englishFont,
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
               ),
               pw.SizedBox(height: 10),
@@ -376,26 +395,32 @@ class Shwoinvoicecontroller extends GetxController {
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
                   pw.Text(
-                      "${'التاريخ'.tr}: ${invoices!.date!.substring(0, 10)}",
-                      style: pw.TextStyle(
-                          font: Get.locale?.languageCode == "ar"
-                              ? arabicFont
-                              : englishFont,
-                          fontSize: 12)),
-                  pw.Text("${'رقم الفتورة'.tr}: ${invoices!.number ?? ''}",
-                      style: pw.TextStyle(
-                          font: Get.locale?.languageCode == "ar"
-                              ? arabicFont
-                              : englishFont,
-                          fontSize: 12)),
+                    "${'date'.tr}: ${invoices!.date!.substring(0, 10)}",
+                    style: pw.TextStyle(
+                      font: Get.locale?.languageCode == "ar"
+                          ? arabicFont
+                          : englishFont,
+                      fontSize: 12,
+                    ),
+                  ),
+                  pw.Text(
+                    "${'invoice_number'.tr}: ${invoices!.number ?? ''}",
+                    style: pw.TextStyle(
+                      font: Get.locale?.languageCode == "ar"
+                          ? arabicFont
+                          : englishFont,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
               pw.SizedBox(height: 5),
               pw.Directionality(
-                textDirection:
-                    isArabicName ? pw.TextDirection.rtl : pw.TextDirection.ltr,
+                textDirection: isArabicName
+                    ? pw.TextDirection.rtl
+                    : pw.TextDirection.ltr,
                 child: pw.Text(
-                  "${'الزبون'.tr}: $safeCustomerName",
+                  "${'customer'.tr}: $safeCustomerName",
                   style: pw.TextStyle(
                     font: isArabicName ? arabicFont : englishFont,
                     fontSize: 12,
@@ -407,9 +432,11 @@ class Shwoinvoicecontroller extends GetxController {
                 pw.Directionality(
                   textDirection: pw.TextDirection.rtl,
                   child: pw.Text(
-                    "${'نوع البيع'.tr}: ${invoices!.saleType == 3 ? 'جملة'.tr : (invoices!.saleType == 2 ? 'نصف جملة'.tr : 'تجزئة'.tr)}",
+                    "${'sale_type'.tr}: ${invoices!.saleType == 3 ? 'wholesale'.tr : (invoices!.saleType == 2 ? 'half_wholesale'.tr : 'retail'.tr)}",
                     style: pw.TextStyle(
-                      font: Get.locale?.languageCode == "ar" ? arabicFont : englishFont,
+                      font: Get.locale?.languageCode == "ar"
+                          ? arabicFont
+                          : englishFont,
                       fontSize: 12,
                     ),
                   ),
@@ -423,11 +450,13 @@ class Shwoinvoicecontroller extends GetxController {
                 ),
                 children: [
                   pw.TableRow(
-                    decoration:
-                        pw.BoxDecoration(color: PdfColor.fromHex("#C7C4F9")),
+                    decoration: pw.BoxDecoration(
+                      color: PdfColor.fromHex("#C7C4F9"),
+                    ),
                     children: tableData.first.map((text) {
-                      final font =
-                          isArabicText(text) ? arabicFont : englishFont;
+                      final font = isArabicText(text)
+                          ? arabicFont
+                          : englishFont;
                       return pw.Padding(
                         padding: pw.EdgeInsets.all(6),
                         child: pw.Text(
@@ -445,20 +474,22 @@ class Shwoinvoicecontroller extends GetxController {
                   ...tableData.skip(1).map((row) {
                     return pw.TableRow(
                       children: row.map((cell) {
-                        final font =
-                            isArabicText(cell) ? arabicFont : englishFont;
+                        final font = isArabicText(cell)
+                            ? arabicFont
+                            : englishFont;
                         return pw.Padding(
-                            padding: pw.EdgeInsets.all(5),
-                            child: pw.Directionality(
-                              textDirection: isArabicText(cell)
-                                  ? pw.TextDirection.rtl
-                                  : pw.TextDirection.ltr,
-                              child: pw.Text(
-                                cell,
-                                textAlign: pw.TextAlign.center,
-                                style: pw.TextStyle(font: font, fontSize: 11),
-                              ),
-                            ));
+                          padding: pw.EdgeInsets.all(5),
+                          child: pw.Directionality(
+                            textDirection: isArabicText(cell)
+                                ? pw.TextDirection.rtl
+                                : pw.TextDirection.ltr,
+                            child: pw.Text(
+                              cell,
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(font: font, fontSize: 11),
+                            ),
+                          ),
+                        );
                       }).toList(),
                     );
                   }),
@@ -469,17 +500,33 @@ class Shwoinvoicecontroller extends GetxController {
                 padding: const pw.EdgeInsets.symmetric(vertical: 8),
                 child: pw.Column(
                   children: [
-                    _buildPdfRow(arabicFont, englishFont, "المجموع الفرعي".tr,
-                        "${invoices!.totalSales} ${'DA'.tr}"),
+                    _buildPdfRow(
+                      arabicFont,
+                      englishFont,
+                      "subtotal".tr,
+                      "${invoices!.totalSales} ${'DA'.tr}",
+                    ),
                     if (invoices!.discount != 0)
-                      _buildPdfRow(arabicFont, englishFont, "الخصم".tr,
-                          "${invoices!.discount} ${'DA'.tr}"),
-                    _buildPdfRow(arabicFont, englishFont, "المدفوع".tr,
-                        "${double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0} ${'DA'.tr}"),
+                      _buildPdfRow(
+                        arabicFont,
+                        englishFont,
+                        "discount".tr,
+                        "${invoices!.discount} ${'DA'.tr}",
+                      ),
+                    _buildPdfRow(
+                      arabicFont,
+                      englishFont,
+                      "paid_amount".tr,
+                      "${double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0} ${'DA'.tr}",
+                    ),
                     pw.Divider(color: PdfColor.fromHex("#4F46E5")),
-                    _buildPdfRow(arabicFont, englishFont, "الباقي".tr,
-                        "${getRemainingAmount()} ${'DA'.tr}",
-                        isBold: true),
+                    _buildPdfRow(
+                      arabicFont,
+                      englishFont,
+                      "remaining_amount".tr,
+                      "${getRemainingAmount()} ${'DA'.tr}",
+                      isBold: true,
+                    ),
                   ],
                 ),
               ),
@@ -488,12 +535,14 @@ class Shwoinvoicecontroller extends GetxController {
                 mainAxisAlignment: pw.MainAxisAlignment.center,
                 children: [
                   pw.Text(
-                      "نشكركم على التعامل معنا، ونتطلع إلى خدمتكم مجددًا.".tr,
-                      style: pw.TextStyle(
-                          font: Get.locale?.languageCode == "ar"
-                              ? arabicFont
-                              : englishFont,
-                          fontSize: 12)),
+                    "thank_you_message".tr,
+                    style: pw.TextStyle(
+                      font: Get.locale?.languageCode == "ar"
+                          ? arabicFont
+                          : englishFont,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -505,8 +554,12 @@ class Shwoinvoicecontroller extends GetxController {
   }
 
   pw.Widget _buildPdfRow(
-      pw.Font arabicFont, pw.Font englishFont, String label, String value,
-      {bool isBold = false}) {
+    pw.Font arabicFont,
+    pw.Font englishFont,
+    String label,
+    String value, {
+    bool isBold = false,
+  }) {
     bool isArabicText(String text) {
       final arabicRegex = RegExp(r'[\u0600-\u06FF]');
       return arabicRegex.hasMatch(text);
@@ -576,11 +629,15 @@ class Shwoinvoicecontroller extends GetxController {
                   color: Colors.teal.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.receipt_long_outlined, size: 32, color: Colors.teal),
+                child: const Icon(
+                  Icons.receipt_long_outlined,
+                  size: 32,
+                  color: Colors.teal,
+                ),
               ),
               const SizedBox(height: 24),
               Text(
-                "مقاس الورق".tr,
+                "paper_size".tr,
                 style: TextStyle(
                   color: textColor,
                   fontSize: 22,
@@ -589,7 +646,7 @@ class Shwoinvoicecontroller extends GetxController {
               ),
               const SizedBox(height: 16),
               Text(
-                "يرجى اختيار مقاس ورق الفواتير (سيتم حفظه دائماً)".tr,
+                "select_paper_size_msg".tr,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
@@ -599,7 +656,10 @@ class Shwoinvoicecontroller extends GetxController {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        myServices.sharedPreferences?.setInt("printer_width", 460);
+                        myServices.sharedPreferences?.setInt(
+                          "printer_width",
+                          460,
+                        );
                         Get.back();
                         printThermalInvoice();
                       },
@@ -608,16 +668,27 @@ class Shwoinvoicecontroller extends GetxController {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text("58mm".tr, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        "58mm".tr,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        myServices.sharedPreferences?.setInt("printer_width", 576);
+                        myServices.sharedPreferences?.setInt(
+                          "printer_width",
+                          576,
+                        );
                         Get.back();
                         printThermalInvoice();
                       },
@@ -626,9 +697,17 @@ class Shwoinvoicecontroller extends GetxController {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text("80mm".tr, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        "80mm".tr,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -640,9 +719,14 @@ class Shwoinvoicecontroller extends GetxController {
                   onPressed: () => Get.back(),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text("cancel".tr, style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                  child: Text(
+                    "cancel".tr,
+                    style: const TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
                 ),
               ),
             ],
@@ -660,38 +744,73 @@ class Shwoinvoicecontroller extends GetxController {
 
     try {
       final doc = pw.Document();
-      final format = PdfPageFormat.roll80; // 80mm
+
+      final format = PdfPageFormat.roll80;
 
       // Fonts
-      var dataFont = await rootBundle.load("assets/fonts/static/Cairo-Regular.ttf");
+      var dataFont = await rootBundle.load(
+        "assets/fonts/static/Cairo-Regular.ttf",
+      );
       var cairoFont = pw.Font.ttf(dataFont);
-      var dataFontBold = await rootBundle.load("assets/fonts/static/Cairo-Bold.ttf");
+      var dataFontBold = await rootBundle.load(
+        "assets/fonts/static/Cairo-Bold.ttf",
+      );
       var cairoFontBold = pw.Font.ttf(dataFontBold);
 
       // Logo
       pw.Widget? logoWidget;
-      String? logoPath = myServices.sharedPreferences?.getString("logo_stor");
+      String? logoPath = Get.find<Myservices>().sharedPreferences?.getString(
+        "logo_stor",
+      );
       try {
-        if (logoPath != null && logoPath.isNotEmpty && File(logoPath).existsSync()) {
+        if (logoPath != null &&
+            logoPath.isNotEmpty &&
+            logoPath.startsWith('http')) {
+          final netImage = await networkImage(logoPath);
+          logoWidget = pw.Image(netImage, width: 80, height: 80);
+        } else if (logoPath != null &&
+            logoPath.isNotEmpty &&
+            File(logoPath).existsSync()) {
           final imageBytes = File(logoPath).readAsBytesSync();
-          logoWidget = pw.Image(pw.MemoryImage(imageBytes), width: 80, height: 80);
+          logoWidget = pw.Image(
+            pw.MemoryImage(imageBytes),
+            width: 80,
+            height: 80,
+          );
+        } else {
+          final defaultLogo = await rootBundle.load(Appimageassets.test2);
+          logoWidget = pw.Image(
+            pw.MemoryImage(defaultLogo.buffer.asUint8List()),
+            width: 80,
+            height: 80,
+          );
         }
-      } catch (_) {}
+      } catch (_) {
+        final defaultLogo = await rootBundle.load(Appimageassets.test2);
+        logoWidget = pw.Image(
+          pw.MemoryImage(defaultLogo.buffer.asUint8List()),
+          width: 80,
+          height: 80,
+        );
+      }
 
-      final productsList = productSale?.products ?? [];
-      final customerName = [invoices?.familyName, invoices?.name].where((e) => e != null && e.trim().isNotEmpty).join(" ");
-      final safeCustomerName = customerName.isEmpty ? "غير معروف".tr : customerName;
-
-      final total = double.tryParse(productSale?.sumPrice.toString() ?? "0") ?? 0;
-      final paid = double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0;
-      final discountVal = double.tryParse(productSale?.discount.toString() ?? "0") ?? 0;
-      final finalTotal = total - discountVal;
+      final total =
+          double.tryParse(productSale?.sumPrice.toString() ?? "0") ?? 0;
+      final paid =
+          double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0;
+      final discountVal =
+          double.tryParse(productSale?.discount.toString() ?? "0") ?? 0;
       final remaining = getRemainingAmount();
+      final finalTotal = total - discountVal;
 
       doc.addPage(
         pw.Page(
           pageFormat: format,
-          margin: const pw.EdgeInsets.all(5),
+          margin: const pw.EdgeInsets.only(
+              top: 5 * PdfPageFormat.mm,
+              bottom: 7 * PdfPageFormat.mm,
+              left: 2 * PdfPageFormat.mm,
+              right: 2 * PdfPageFormat.mm),
           build: (pw.Context context) {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -700,7 +819,7 @@ class Shwoinvoicecontroller extends GetxController {
                 if (logoWidget != null) logoWidget,
                 pw.SizedBox(height: 5),
                 pw.Text(
-                  "فاتورة مبيعات",
+                  "تفاصيل الفاتورة",
                   style: pw.TextStyle(font: cairoFontBold, fontSize: 14),
                   textDirection: pw.TextDirection.rtl,
                 ),
@@ -709,73 +828,83 @@ class Shwoinvoicecontroller extends GetxController {
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(invoices?.date?.substring(0, 10) ?? "", style: pw.TextStyle(font: cairoFont, fontSize: 9)),
-                    pw.Text("التاريخ:", style: pw.TextStyle(font: cairoFont, fontSize: 9), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      invoices?.date?.toString() ?? "",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 9),
+                    ),
+                    pw.Text(
+                      "التاريخ:",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 9),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(invoices?.number ?? "", style: pw.TextStyle(font: cairoFont, fontSize: 9)),
-                    pw.Text("رقم:", style: pw.TextStyle(font: cairoFont, fontSize: 9), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      invoices?.number?.toString() ?? "",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 9),
+                    ),
+                    pw.Text(
+                      "رقم:",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 9),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(safeCustomerName, style: pw.TextStyle(font: cairoFont, fontSize: 9), textDirection: pw.TextDirection.rtl),
-                    pw.Text("العميل:", style: pw.TextStyle(font: cairoFont, fontSize: 9), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      invoices?.name?.toString() ?? "بدون اسم",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 9),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
+                    pw.Text(
+                      "العميل:",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 9),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
                 ),
-                pw.SizedBox(height: 5),
                 pw.Divider(thickness: 1, borderStyle: pw.BorderStyle.dashed),
-                pw.SizedBox(height: 2),
-                pw.Directionality(
-                  textDirection: pw.TextDirection.rtl,
-                  child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Expanded(flex: 3, child: pw.Text("المنتج", style: pw.TextStyle(font: cairoFontBold, fontSize: 9), textDirection: pw.TextDirection.rtl)),
-                    pw.Expanded(flex: 1, child: pw.Text("كمية", textAlign: pw.TextAlign.center, style: pw.TextStyle(font: cairoFontBold, fontSize: 9), textDirection: pw.TextDirection.rtl)),
-                    pw.Expanded(flex: 2, child: pw.Text("مجموع", textAlign: pw.TextAlign.left, style: pw.TextStyle(font: cairoFontBold, fontSize: 9), textDirection: pw.TextDirection.rtl)),
-                  ],
-                )),
-                pw.Divider(thickness: 1, borderStyle: pw.BorderStyle.dashed),
-                ...productsList.map((item) {
+                ...(productSale?.products ?? []).map((item) {
                   return pw.Padding(
                     padding: const pw.EdgeInsets.symmetric(vertical: 2),
                     child: pw.Directionality(
                       textDirection: pw.TextDirection.rtl,
                       child: pw.Row(
-                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Expanded(
-                          flex: 3,
-                          child: pw.Text(
-                            item.productName.toString(),
-                            style: pw.TextStyle(font: cairoFont, fontSize: 8),
-                            textDirection: pw.TextDirection.rtl,
+                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Expanded(
+                            flex: 3,
+                            child: pw.Text(
+                              item.productName.toString(),
+                              style: pw.TextStyle(font: cairoFont, fontSize: 8),
+                              textDirection: pw.TextDirection.rtl,
+                            ),
                           ),
-                        ),
-                        pw.Expanded(
-                          flex: 1,
-                          child: pw.Text(
-                            item.quantity.toString(),
-                            textAlign: pw.TextAlign.center,
-                            style: pw.TextStyle(font: cairoFont, fontSize: 8),
+                          pw.Expanded(
+                            flex: 1,
+                            child: pw.Text(
+                              item.quantity.toString(),
+                              textAlign: pw.TextAlign.center,
+                              style: pw.TextStyle(font: cairoFont, fontSize: 8),
+                            ),
                           ),
-                        ),
-                        pw.Expanded(
-                          flex: 2,
-                          child: pw.Text(
-                            double.tryParse(item.subtotal.toString())?.toStringAsFixed(2) ?? "0",
-                            textAlign: pw.TextAlign.left,
-                            style: pw.TextStyle(font: cairoFont, fontSize: 8),
+                          pw.Expanded(
+                            flex: 2,
+                            child: pw.Text(
+                              double.tryParse(item.subtotal.toString())?.toStringAsFixed(2) ?? "0",
+                              textAlign: pw.TextAlign.left,
+                              style: pw.TextStyle(font: cairoFont, fontSize: 8),
+                            ),
                           ),
-                        ),
-                      ],
-                    )),
+                        ],
+                      ),
+                    ),
                   );
                 }).toList(),
                 pw.SizedBox(height: 2),
@@ -784,46 +913,74 @@ class Shwoinvoicecontroller extends GetxController {
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(total.toStringAsFixed(2), style: pw.TextStyle(font: cairoFontBold, fontSize: 10)),
-                    pw.Text("المجموع:", style: pw.TextStyle(font: cairoFontBold, fontSize: 10), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      total.toStringAsFixed(2),
+                      style: pw.TextStyle(font: cairoFontBold, fontSize: 10),
+                    ),
+                    pw.Text(
+                      "المجموع:",
+                      style: pw.TextStyle(font: cairoFontBold, fontSize: 10),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
                 ),
                 if (discountVal > 0)
                   pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
-                      pw.Text(discountVal.toStringAsFixed(2), style: pw.TextStyle(font: cairoFont, fontSize: 10)),
-                      pw.Text("الخصم:", style: pw.TextStyle(font: cairoFont, fontSize: 10), textDirection: pw.TextDirection.rtl),
+                      pw.Text(
+                        discountVal.toStringAsFixed(2),
+                        style: pw.TextStyle(font: cairoFont, fontSize: 10),
+                      ),
+                      pw.Text(
+                        "الخصم:",
+                        style: pw.TextStyle(font: cairoFont, fontSize: 10),
+                        textDirection: pw.TextDirection.rtl,
+                      ),
                     ],
                   ),
                 pw.Divider(thickness: 1, borderStyle: pw.BorderStyle.dashed),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(finalTotal.toStringAsFixed(2), style: pw.TextStyle(font: cairoFontBold, fontSize: 12)),
-                    pw.Text("الصافي:", style: pw.TextStyle(font: cairoFontBold, fontSize: 12), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      finalTotal.toStringAsFixed(2),
+                      style: pw.TextStyle(font: cairoFontBold, fontSize: 12),
+                    ),
+                    pw.Text(
+                      "الصافي:",
+                      style: pw.TextStyle(font: cairoFontBold, fontSize: 12),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(paid.toStringAsFixed(2), style: pw.TextStyle(font: cairoFont, fontSize: 10)),
-                    pw.Text("المدفوع:", style: pw.TextStyle(font: cairoFont, fontSize: 10), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      paid.toStringAsFixed(2),
+                      style: pw.TextStyle(font: cairoFont, fontSize: 10),
+                    ),
+                    pw.Text(
+                      "المدفوع:",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 10),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
                 ),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text(remaining.toStringAsFixed(2), style: pw.TextStyle(font: cairoFont, fontSize: 10)),
-                    pw.Text("المتبقي:", style: pw.TextStyle(font: cairoFont, fontSize: 10), textDirection: pw.TextDirection.rtl),
+                    pw.Text(
+                      remaining.toStringAsFixed(2),
+                      style: pw.TextStyle(font: cairoFont, fontSize: 10),
+                    ),
+                    pw.Text(
+                      "المتبقي:",
+                      style: pw.TextStyle(font: cairoFont, fontSize: 10),
+                      textDirection: pw.TextDirection.rtl,
+                    ),
                   ],
-                ),
-                pw.SizedBox(height: 10),
-                pw.Text(
-                  "شكراً لزيارتكم",
-                  style: pw.TextStyle(font: cairoFont, fontSize: 10),
-                  textDirection: pw.TextDirection.rtl,
-                  textAlign: pw.TextAlign.center,
                 ),
                 if (invoices?.uuid != null) ...[
                   pw.SizedBox(height: 10),
@@ -833,7 +990,7 @@ class Shwoinvoicecontroller extends GetxController {
                     width: 100,
                     height: 30,
                     drawText: false,
-                  )
+                  ),
                 ],
                 pw.SizedBox(height: 5),
               ],
@@ -847,12 +1004,12 @@ class Shwoinvoicecontroller extends GetxController {
 
       for (var printer in printers) {
         final name = printer.name.toLowerCase();
-        if (name.contains('pos') || 
-            name.contains('receipt') || 
-            name.contains('thermal') || 
-            name.contains('80') || 
-            name.contains('58') || 
-            name.contains('xp') || 
+        if (name.contains('pos') ||
+            name.contains('receipt') ||
+            name.contains('thermal') ||
+            name.contains('80') ||
+            name.contains('58') ||
+            name.contains('xp') ||
             name.contains('esc')) {
           selectedPrinter = printer;
           break;
@@ -860,22 +1017,24 @@ class Shwoinvoicecontroller extends GetxController {
       }
 
       if (selectedPrinter == null) {
-        showSnackbar("تنبيه", "لم يتم العثور على طابعة حرارية (POS/Receipt) متصلة بالجهاز.", Colors.orange);
-        isPrinting = false;
-        update();
-        return;
+        await Printing.layoutPdf(
+          onLayout: (PdfPageFormat _) async => doc.save(),
+          format: format,
+        );
+      } else {
+        final success = await Printing.directPrintPdf(
+          printer: selectedPrinter,
+          onLayout: (PdfPageFormat _) async => doc.save(),
+        );
+        if (!success) {
+          await Printing.layoutPdf(
+            onLayout: (PdfPageFormat _) async => doc.save(),
+            format: format,
+          );
+        }
       }
-
-      await Printing.directPrintPdf(
-        printer: selectedPrinter,
-        onLayout: (PdfPageFormat _) async => doc.save(),
-      );
     } catch (e) {
-      showSnackbar(
-        "error".tr,
-        "حدث خطأ أثناء الطباعة".tr,
-        Colors.red,
-      );
+      showSnackbar("error".tr, "printing_error".tr, Colors.red);
     } finally {
       isPrinting = false;
       update();
@@ -888,9 +1047,23 @@ class Shwoinvoicecontroller extends GetxController {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("$label: ", style: const TextStyle(fontSize: 14, fontFamily: 'Cairo', color: Colors.black)),
-          Text(value,
-              textAlign: TextAlign.right, style: const TextStyle(fontSize: 14, fontFamily: 'Cairo', color: Colors.black)),
+          Text(
+            "$label: ",
+            style: const TextStyle(
+              fontSize: 14,
+              fontFamily: 'Cairo',
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              fontSize: 14,
+              fontFamily: 'Cairo',
+              color: Colors.black,
+            ),
+          ),
         ],
       ),
     );
@@ -907,8 +1080,9 @@ class Shwoinvoicecontroller extends GetxController {
       invoices?.familyName,
       invoices?.name,
     ].where((e) => e != null && e.trim().isNotEmpty).join(" ");
-    final safeCustomerName =
-        customerName.isEmpty ? "غير معروف".tr : customerName;
+    final safeCustomerName = customerName.isEmpty
+        ? "unknown".tr
+        : customerName;
 
     final isArabic = Get.locale?.languageCode == "ar";
 
@@ -944,7 +1118,9 @@ class Shwoinvoicecontroller extends GetxController {
                     icon: Icon(Icons.close, color: textColor),
                     onPressed: () => Get.back(),
                     style: IconButton.styleFrom(
-                      backgroundColor: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+                      backgroundColor: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.grey.withValues(alpha: 0.1),
                     ),
                   ),
                   Text(
@@ -961,9 +1137,7 @@ class Shwoinvoicecontroller extends GetxController {
                       Get.back();
                       printThermalInvoice();
                     },
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                    ),
+                    style: IconButton.styleFrom(backgroundColor: Colors.teal),
                   ),
                 ],
               ),
@@ -973,7 +1147,9 @@ class Shwoinvoicecontroller extends GetxController {
                   constraints: const BoxConstraints(maxHeight: 600),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                    ),
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
@@ -1008,7 +1184,10 @@ class Shwoinvoicecontroller extends GetxController {
     if (number == number.truncateToDouble()) {
       return number.toInt().toString();
     }
-    return number.toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
+    return number
+        .toStringAsFixed(2)
+        .replaceAll(RegExp(r'0*$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
   }
 
   Widget _buildThermalReceiptWidget({
@@ -1022,245 +1201,345 @@ class Shwoinvoicecontroller extends GetxController {
     double width = 460.0,
   }) {
     return Container(
-        color: Colors.white,
-        child: Directionality(
-          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-          child: Material(
-            color: Colors.white,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              width: width,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          nameSaler.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontFamily: 'Cairo',
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          address,
-                          style: const TextStyle(
-                              fontSize: 16, color: Colors.black, fontFamily: 'Cairo'),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (phoneNumber.isNotEmpty)
-                          Text(
-                            phoneNumber,
-                            style: const TextStyle(
-                                fontSize: 15, color: Colors.black, fontFamily: 'Cairo'),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 1.5,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      color: Colors.white,
+      child: Directionality(
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+        child: Material(
+          color: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            width: width,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Column(
                     children: [
                       Text(
-                        "${'التاريخ'.tr}: ${invoices.date!.substring(0, 10)}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        invoices.date!.length > 16
-                            ? invoices.date!.substring(11, 19)
-                            : "",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${'رقم الفتورة'.tr}: ${invoices.number}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
+                        nameSaler.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontFamily: 'Cairo',
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        "${'الزبون'.tr}: $safeCustomerName",
+                        address,
                         style: const TextStyle(
-                            fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontFamily: 'Cairo',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (phoneNumber.isNotEmpty)
+                        Text(
+                          phoneNumber,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.black,
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  height: 1.5,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${'date'.tr}: ${invoices.date!.substring(0, 10)}",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      invoices.date!.length > 16
+                          ? invoices.date!.substring(11, 19)
+                          : "",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${'invoice_number'.tr}: ${invoices.number}",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      "${'customer'.tr}: $safeCustomerName",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black,
+                        fontFamily: 'Cairo',
+                      ),
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (invoices.saleType != null) ...[
+                      const SizedBox(height: 5),
+                      Text(
+                        "${'sale_type'.tr}: ${invoices.saleType == 3 ? 'wholesale'.tr : (invoices.saleType == 2 ? 'half_wholesale'.tr : 'retail'.tr)}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontFamily: 'Cairo',
+                        ),
                         textAlign: TextAlign.start,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      if (invoices.saleType != null) ...[
-                        const SizedBox(height: 5),
-                        Text(
-                          "${'نوع البيع'.tr}: ${invoices.saleType == 3 ? 'جملة'.tr : (invoices.saleType == 2 ? 'نصف جملة'.tr : 'تجزئة'.tr)}",
-                          style: const TextStyle(
-                              fontSize: 14, color: Colors.black, fontFamily: 'Cairo'),
-                          textAlign: TextAlign.start,
-                        ),
-                      ],
                     ],
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 1.5,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Text("المنتج".tr,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
-                      Expanded(
-                          flex: 1,
-                          child: Text('QTY'.tr,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
-                      Expanded(
-                          flex: 2,
-                          child: Text("سعر الوحدة".tr,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black),
-                              textAlign:
-                                  isArabic ? TextAlign.left : TextAlign.right)),
-                      Expanded(
-                          flex: 2,
-                          child: Text('السعر الإجمالي'.tr,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Cairo', color: Colors.black),
-                              textAlign:
-                                  isArabic ? TextAlign.left : TextAlign.right)),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 1.5,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 10),
-                  ...productsList.map((p) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                flex: 2,
-                                child: Text(p.productName,
-                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
-                            Expanded(
-                                flex: 1,
-                                child: Text("${p.quantity}",
-                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
-                            Expanded(
-                                flex: 2,
-                                child: Text(_formatNumber(double.tryParse(p.unitPrice.toString()) ?? 0),
-                                    textAlign: isArabic
-                                        ? TextAlign.left
-                                        : TextAlign.right,
-                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
-                            Expanded(
-                                flex: 2,
-                                child: Text(_formatNumber(double.tryParse(p.subtotal.toString()) ?? 0),
-                                    textAlign: isArabic
-                                        ? TextAlign.left
-                                        : TextAlign.right,
-                                    style: const TextStyle(fontSize: 13, fontFamily: 'Cairo', color: Colors.black))),
-                          ],
-                        ),
-                      )),
-                  const SizedBox(height: 15),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 1.5,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 10),
-                  _buildAmountRow(
-                      "المجموع الفرعي".tr, "${_formatNumber(double.tryParse(invoices.totalSales.toString()) ?? 0)} ${'DA'.tr}"),
-                  if (double.tryParse(invoices.discount.toString()) != 0)
-                    _buildAmountRow(
-                        "الخصم".tr, "${_formatNumber(double.tryParse(invoices.discount.toString()) ?? 0)} ${'DA'.tr}"),
-                  _buildAmountRow("المدفوع".tr,
-                      "${_formatNumber(double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0)} ${'DA'.tr}"),
-                  const SizedBox(height: 5),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 1.5,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "الباقي".tr,
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  height: 1.5,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        "product".tr,
                         style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Cairo', color: Colors.black),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          fontFamily: 'Cairo',
+                          color: Colors.black,
+                        ),
                       ),
-                      Text(
-                        "${_formatNumber(getRemainingAmount())} ${'DA'.tr}",
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Text(
+                        'QTY'.tr,
                         style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'Cairo', color: Colors.black),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          fontFamily: 'Cairo',
+                          color: Colors.black,
+                        ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 1.5,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 15),
-                  Center(
-                    child: Column(
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        "unit_price".tr,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          fontFamily: 'Cairo',
+                          color: Colors.black,
+                        ),
+                        textAlign: isArabic ? TextAlign.left : TextAlign.right,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        'total_price'.tr,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          fontFamily: 'Cairo',
+                          color: Colors.black,
+                        ),
+                        textAlign: isArabic ? TextAlign.left : TextAlign.right,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  height: 1.5,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 10),
+                ...productsList.map(
+                  (p) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "*** ${'THANK YOU'.tr} ***",
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Cairo', color: Colors.black),
-                        ),
-                        const SizedBox(height: 20),
-                        if (invoices.uuid != null)
-                          SizedBox(
-                            height: 60,
-                            width: 200,
-                            child: BarcodeWidget(
-                              barcode: Barcode.code128(),
-                              data: invoices.uuid!,
-                              drawText: false,
-                              width: 200,
-                              height: 60,
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            p.productName,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Cairo',
+                              color: Colors.black,
                             ),
                           ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            "${p.quantity}",
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Cairo',
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            _formatNumber(
+                              double.tryParse(p.unitPrice.toString()) ?? 0,
+                            ),
+                            textAlign: isArabic
+                                ? TextAlign.left
+                                : TextAlign.right,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Cairo',
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            _formatNumber(
+                              double.tryParse(p.subtotal.toString()) ?? 0,
+                            ),
+                            textAlign: isArabic
+                                ? TextAlign.left
+                                : TextAlign.right,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontFamily: 'Cairo',
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 25),
-                ],
-              ),
+                ),
+                const SizedBox(height: 15),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  height: 1.5,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 10),
+                _buildAmountRow(
+                  "subtotal".tr,
+                  "${_formatNumber(double.tryParse(invoices.totalSales.toString()) ?? 0)} ${'DA'.tr}",
+                ),
+                if (double.tryParse(invoices.discount.toString()) != 0)
+                  _buildAmountRow(
+                    "discount".tr,
+                    "${_formatNumber(double.tryParse(invoices.discount.toString()) ?? 0)} ${'DA'.tr}",
+                  ),
+                _buildAmountRow(
+                  "paid_amount".tr,
+                  "${_formatNumber(double.tryParse(productSale?.paymentprice.toString() ?? "0") ?? 0)} ${'DA'.tr}",
+                ),
+                const SizedBox(height: 5),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  height: 1.5,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "remaining_amount".tr,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      "${_formatNumber(getRemainingAmount())} ${'DA'.tr}",
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Cairo',
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  height: 1.5,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "*** ${'THANK YOU'.tr} ***",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cairo',
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      if (invoices.uuid != null)
+                        SizedBox(
+                          height: 60,
+                          width: 200,
+                          child: BarcodeWidget(
+                            barcode: Barcode.code128(),
+                            data: invoices.uuid!,
+                            drawText: false,
+                            width: 200,
+                            height: 60,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 25),
+              ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   List<int> convertImageToTSPL(img.Image image) {
@@ -1296,17 +1575,22 @@ class Shwoinvoicecontroller extends GetxController {
       // الفواتير دائماً ورق متصل، نجعل الهامش 120 (حوالي 1.5 سم)
       int margin = 120;
       topMargin = (firstContentRow - margin).clamp(0, image.height);
-      contentHeight = (lastContentRow - topMargin + margin)
-          .clamp(1, image.height - topMargin);
+      contentHeight = (lastContentRow - topMargin + margin).clamp(
+        1,
+        image.height - topMargin,
+      );
     }
     int topPadding = 50;
-    int bottomPadding = 0;
+    int bottomPadding = 120; // Added space before cut
     // تحديد عرض الورق الفعلي بالمليمتر بناءً على حجم الصورة
     int paperWidthMm = (image.width <= 460) ? 57 : 80;
     double totalHeight = ((contentHeight + topPadding + bottomPadding) / 8 + 2);
     // الإعدادات الأساسية - SIZE يعكس الارتفاع الفعلي للمحتوى فقط
-    bytes.addAll(ascii.encode(
-        "SIZE $paperWidthMm mm, ${totalHeight.toStringAsFixed(1)} mm\r\n"));
+    bytes.addAll(
+      ascii.encode(
+        "SIZE $paperWidthMm mm, ${totalHeight.toStringAsFixed(1)} mm\r\n",
+      ),
+    );
     // ورق فواتير (متصل) - بدون فجوات دائماً
     bytes.addAll(ascii.encode("GAP 0,0\r\n"));
 
@@ -1327,8 +1611,9 @@ class Shwoinvoicecontroller extends GetxController {
 
     // إضافة معايرة يدوية (نفس التي استخدمتها للباركود) لدفع الفاتورة لليمين أكثر
 
-    bytes.addAll(ascii
-        .encode("BITMAP $offsetX,$topPadding,$widthBytes,$contentHeight,0,"));
+    bytes.addAll(
+      ascii.encode("BITMAP $offsetX,$topPadding,$widthBytes,$contentHeight,0,"),
+    );
 
     for (int y = topMargin; y < topMargin + contentHeight; y++) {
       for (int x = 0; x < widthBytes; x++) {
@@ -1376,12 +1661,14 @@ class Shwoinvoicecontroller extends GetxController {
     int contentHeight = image.height;
     if (lastContentRow > 0) {
       topMargin = (firstContentRow).clamp(0, image.height);
-      contentHeight =
-          (lastContentRow - topMargin + 1).clamp(1, image.height - topMargin);
+      contentHeight = (lastContentRow - topMargin + 1).clamp(
+        1,
+        image.height - topMargin,
+      );
     }
 
     int topPadding = 50;
-    int bottomPadding = 0;
+    int bottomPadding = 120; // Added space before cut
 
     Myservices myServices = Get.find();
     int settingsWidth =
@@ -1393,7 +1680,7 @@ class Shwoinvoicecontroller extends GetxController {
     // =========================
     // إنشاء Canvas بعرض الورق وتوسيط الصورة فيه
     // =========================
-    
+
     // حساب الإزاحة لتوسيط الفاتورة أفقياً داخل الكانفاس
     int offsetX = ((physicalWidthDots - image.width) / 2)
         .clamp(0, physicalWidthDots)
@@ -1405,10 +1692,7 @@ class Shwoinvoicecontroller extends GetxController {
     );
 
     // ملء الخلفية باللون الأبيض
-    img.fill(
-      centeredImage,
-      color: img.ColorRgb8(255, 255, 255),
-    );
+    img.fill(centeredImage, color: img.ColorRgb8(255, 255, 255));
 
     // لصق الفاتورة الأصلية في منتصف الـ Canvas
     img.compositeImage(
@@ -1437,11 +1721,11 @@ class Shwoinvoicecontroller extends GetxController {
       bytes.addAll([0x1D, 0x76, 0x30, 0x00]);
       bytes.add(widthBytes % 256);
       bytes.add(widthBytes ~/ 256);
-      
+
       int chunkHeight = (y + 24 > centeredImage.height)
           ? centeredImage.height - y
           : 24;
-          
+
       bytes.add(chunkHeight % 256);
       bytes.add(chunkHeight ~/ 256);
 
@@ -1472,5 +1756,4 @@ class Shwoinvoicecontroller extends GetxController {
     bytes.addAll([0x1D, 0x56, 0x41, 0x00]); // Cut
     return bytes;
   }
-
 }

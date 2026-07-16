@@ -41,7 +41,7 @@ class StockBalance extends StatelessWidget {
                         textDirection: TextDirection.rtl,
                         children: [
                           Text(
-                            "رصيد المخزون",
+                            "stock_balance".tr,
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
@@ -50,7 +50,7 @@ class StockBalance extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "نظرة عامة على حركة المخزون",
+                            "stock_balance_desc".tr,
                             style: TextStyle(
                               fontSize: 14,
                               color: isDark ? AppColor.textSecondary : Colors.grey.shade500,
@@ -81,7 +81,7 @@ class StockBalance extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "تحديد الفترة",
+                                    "select_period".tr,
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,

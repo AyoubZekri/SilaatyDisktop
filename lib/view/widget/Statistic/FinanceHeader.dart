@@ -33,41 +33,41 @@ class FinanceHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title ?? "public_finance_overview".tr,
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    fontFamily: 'Cairo',
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title ?? "public_finance_overview".tr,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      fontFamily: 'Cairo',
+                    ),
                   ),
-                ),
-                Text(
-                  subtitle ?? "financial_summary_desc".tr,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark
-                        ? AppColor.textSecondary
-                        : Colors.grey.shade500,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Cairo',
+                  Text(
+                    subtitle ?? "financial_summary_desc".tr,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark
+                          ? AppColor.textSecondary
+                          : Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Cairo',
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            Row(
+            const SizedBox(width: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                if (extraFilter != null) ...[
-                  extraFilter!,
-                  const SizedBox(width: 16),
-                ],
-                if (showAccountFilter) ...[
-                  _buildSalesAccountFilter(isDark),
-                  const SizedBox(width: 16),
-                ],
+                if (extraFilter != null) extraFilter!,
+                if (showAccountFilter) _buildSalesAccountFilter(isDark),
                 _buildFilterButton(context, controller, isDark),
               ],
             ),

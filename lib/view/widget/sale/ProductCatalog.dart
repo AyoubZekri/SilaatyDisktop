@@ -140,7 +140,7 @@ class ProductCatalog extends StatelessWidget {
                 controller.search(val);
               },
               decoration: InputDecoration(
-                hintText: 'بحث عن منتج...'.tr,
+                hintText: 'search_product'.tr,
                 hintStyle: TextStyle(
                   color: isDark ? Colors.white30 : Colors.grey.shade400,
                   fontSize: 15,
@@ -169,7 +169,7 @@ class ProductCatalog extends StatelessWidget {
         if (controller.categories.isEmpty) return const SizedBox.shrink();
 
         final categories = [
-          {'uuid': '', 'name': 'الكل'.tr},
+          {'uuid': '', 'name': 'all'.tr},
           ...controller.categories
               .map((c) => {'uuid': c.uuid, 'name': c.categorisName})
               .toList(),
@@ -267,7 +267,7 @@ class ProductCatalog extends StatelessWidget {
         if (!isOutOfStock || saleController.type == 1) {
           saleController.addProductFromCatalog(productData.toJson());
         } else {
-          showSnackbar("خطأ", "الكمية غير متوفرة", Colors.red);
+          showSnackbar('error'.tr, 'quantity_not_available'.tr, Colors.red);
         }
       },
       borderRadius: BorderRadius.circular(20),
@@ -402,7 +402,7 @@ class ProductCatalog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
-                        'الكمية: $formattedQty',
+                        '${'quantity'.tr}: $formattedQty',
                         style: TextStyle(
                           fontSize: 12,
                           color: isOutOfStock

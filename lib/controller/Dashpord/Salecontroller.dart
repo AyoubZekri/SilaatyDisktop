@@ -849,7 +849,11 @@ class SaleController extends GetxController {
       doc.addPage(
         pw.Page(
           pageFormat: format,
-          margin: const pw.EdgeInsets.all(5),
+          margin: const pw.EdgeInsets.only(
+              top: 5 * PdfPageFormat.mm,
+              bottom: 7 * PdfPageFormat.mm,
+              left: 2 * PdfPageFormat.mm,
+              right: 2 * PdfPageFormat.mm),
           build: (pw.Context context) {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.center,

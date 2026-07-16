@@ -44,7 +44,7 @@ class AnalyticsSection extends StatelessWidget {
     int filter = homeController.selectedFilter;
     int expectedPoints = filter == 1
         ? 24
-        : (filter == 2 ? 7 : (filter == 3 ? 4 : 12));
+        : (filter == 2 ? 7 : (filter == 3 ? 32 : 12));
 
     List<Map<String, dynamic>> displayData = [];
     for (int i = 0; i < expectedPoints; i++) {
@@ -85,7 +85,7 @@ class AnalyticsSection extends StatelessWidget {
             textDirection: TextDirection.rtl,
             children: [
               Text(
-                'إحصائيات الدخل',
+                'income_statistics'.tr,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -98,7 +98,7 @@ class AnalyticsSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'مقارنة أداء المبيعات عبر الفترات الزمنية',
+            'sales_performance_comparison'.tr,
             style: TextStyle(
               fontSize: 14,
               color: isDark ? AppColor.textSecondary : const Color(0xFF8E92BC),
@@ -120,7 +120,7 @@ class AnalyticsSection extends StatelessWidget {
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((spot) {
                         return LineTooltipItem(
-                          '${spot.y.toInt()} د.ج',
+                          '${spot.y.toInt()} ${'dzd'.tr}',
                           const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -157,32 +157,33 @@ class AnalyticsSection extends StatelessWidget {
                                 '${index.toString().padLeft(2, '0')}:00'; // Hours
                           } else if (homeController.selectedFilter == 2) {
                             List<String> days = [
-                              'الأحد',
-                              'الاثنين',
-                              'الثلاثاء',
-                              'الأربعاء',
-                              'الخميس',
-                              'الجمعة',
-                              'السبت',
+                              'sunday'.tr,
+                              'monday'.tr,
+                              'tuesday'.tr,
+                              'wednesday'.tr,
+                              'thursday'.tr,
+                              'friday'.tr,
+                              'saturday'.tr,
                             ];
                             text = days[index % 7];
                           } else if (homeController.selectedFilter == 3) {
-                            text = 'أسبوع ${index + 1}'; // Weeks
+                            if (index % 5 != 0 || index == 0) return const SizedBox.shrink();
+                            text = '$index'; // Days
                           } else if (homeController.selectedFilter == 4) {
                             if (index % 2 != 0) return const SizedBox.shrink();
                             List<String> months = [
-                              'جانفي',
-                              'فيفري',
-                              'مارس',
-                              'أفريل',
-                              'ماي',
-                              'جوان',
-                              'جويلية',
-                              'أوت',
-                              'سبتمبر',
-                              'أكتوبر',
-                              'نوفمبر',
-                              'ديسمبر',
+                              'january'.tr,
+                              'february'.tr,
+                              'march'.tr,
+                              'april'.tr,
+                              'may'.tr,
+                              'june'.tr,
+                              'july'.tr,
+                              'august'.tr,
+                              'september'.tr,
+                              'october'.tr,
+                              'november'.tr,
+                              'december'.tr,
                             ];
                             text = months[index % 12]; // Months
                           }
@@ -285,25 +286,25 @@ class AnalyticsSection extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildFilterTab(
-            'اليوم',
+            'today_filter'.tr,
             isActive: homeController.selectedFilter == 1,
             isDark: isDark,
             onTap: () => homeController.changeChartFilter(1),
           ),
           _buildFilterTab(
-            'الأسبوع',
+            'week_filter'.tr,
             isActive: homeController.selectedFilter == 2,
             isDark: isDark,
             onTap: () => homeController.changeChartFilter(2),
           ),
           _buildFilterTab(
-            'الشهر',
+            'month_filter'.tr,
             isActive: homeController.selectedFilter == 3,
             isDark: isDark,
             onTap: () => homeController.changeChartFilter(3),
           ),
           _buildFilterTab(
-            'العام',
+            'year_filter'.tr,
             isActive: homeController.selectedFilter == 4,
             isDark: isDark,
             onTap: () => homeController.changeChartFilter(4),
@@ -374,7 +375,7 @@ class AnalyticsSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            'الأكثر مبيعاً',
+            'best_sellers'.tr,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -389,7 +390,7 @@ class AnalyticsSection extends StatelessWidget {
                 children: [
                   ...homeController.bestSellers.map((item) {
                     return _buildBestSellerItem(
-                      item['product_name']?.toString() ?? 'فئة',
+                      item['product_name']?.toString() ?? 'category'.tr,
                       (item['percentage'] as num?)?.toInt() ?? 0,
                       AppColor.primaryPurple,
                       Icons.category_outlined,
@@ -401,7 +402,7 @@ class AnalyticsSection extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 50.0),
                       child: Center(
                         child: Text(
-                          'لا توجد مبيعات مسجلة',
+                          'no_recorded_sales'.tr,
                           style: TextStyle(
                             color: isDark ? Colors.white54 : Colors.black54,
                             fontFamily: 'Cairo',
@@ -428,7 +429,7 @@ class AnalyticsSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'إجمالي المخزون النشط',
+                    'total_active_stock'.tr,
                     style: TextStyle(
                       fontSize: 12,
                       color: isDark
@@ -459,8 +460,8 @@ class AnalyticsSection extends StatelessWidget {
                       : const Color(0xFFE8F5E9),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
-                  'مستقر',
+                child: Text(
+                  'stable'.tr,
                   style: TextStyle(
                     color: Color(0xFF4CAF50),
                     fontSize: 12,

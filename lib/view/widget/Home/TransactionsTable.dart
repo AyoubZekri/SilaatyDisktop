@@ -39,7 +39,7 @@ class TransactionsTable extends StatelessWidget {
                   textDirection: TextDirection.rtl,
                   children: [
                     Text(
-                      'آخر المعاملات',
+                      'recent_transactions'.tr,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -49,7 +49,7 @@ class TransactionsTable extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {},
-                      child: const Text('عرض الكل', style: TextStyle(color: AppColor.primaryPurple, fontFamily: 'Cairo')),
+                      child: Text('view_all'.tr, style: const TextStyle(color: AppColor.primaryPurple, fontFamily: 'Cairo')),
                     ),
                   ],
                 ),
@@ -62,17 +62,17 @@ class TransactionsTable extends StatelessWidget {
                       ? Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Center(
-                            child: Text('لا توجد معاملات حديثة', style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontFamily: 'Cairo')),
+                            child: Text('no_recent_transactions'.tr, style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontFamily: 'Cairo')),
                           ),
                         )
                       : Column(
                           children: homeController.recentTransactions.map((tx) {
                             return _buildTableRow(
-                              tx['product_name'] ?? 'منتج',
+                              tx['product_name'] ?? 'product'.tr,
                               tx['invoies_date'] ?? '',
-                              tx['customer_name'] ?? 'عميل غير معروف',
-                              'مكتمل', // Assuming completed for now
-                              '${tx['subtotal']} د.ج',
+                              tx['customer_name'] ?? 'unknown_customer'.tr,
+                              'completed'.tr, // Assuming completed for now
+                              '${tx['subtotal']} ${'dzd'.tr}',
                               Colors.green,
                               Icons.check_circle_outline,
                               isDark,
@@ -100,11 +100,11 @@ class TransactionsTable extends StatelessWidget {
       child: Row(
         textDirection: TextDirection.rtl,
         children: [
-           Expanded(flex: 2, child: Text('المنتج', textAlign: TextAlign.right, style: headerStyle)),
-           Expanded(flex: 2, child: Text('التاريخ', textAlign: TextAlign.right, style: headerStyle)),
-           Expanded(flex: 2, child: Text('العميل', textAlign: TextAlign.right, style: headerStyle)),
-           Expanded(flex: 1, child: Text('الحالة', textAlign: TextAlign.right, style: headerStyle)),
-           Expanded(flex: 1, child: Text('المبلغ', textAlign: TextAlign.right, style: headerStyle)),
+           Expanded(flex: 2, child: Text('product'.tr, textAlign: TextAlign.right, style: headerStyle)),
+           Expanded(flex: 2, child: Text('date'.tr, textAlign: TextAlign.right, style: headerStyle)),
+           Expanded(flex: 2, child: Text('customer'.tr, textAlign: TextAlign.right, style: headerStyle)),
+           Expanded(flex: 1, child: Text('status'.tr, textAlign: TextAlign.right, style: headerStyle)),
+           Expanded(flex: 1, child: Text('amount'.tr, textAlign: TextAlign.right, style: headerStyle)),
         ],
       ),
     );

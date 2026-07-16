@@ -266,7 +266,7 @@ class FinanceTransactionsTable extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         Text(
-          'عرض $start إلى $end من أصل $total عملية',
+          'showing_cs_records'.tr.replaceFirst('%s', '$start').replaceFirst('%s', '$end').replaceFirst('%s', '$total').replaceFirst('%s', 'transaction'.tr),
           style: TextStyle(color: subtitleColor, fontSize: 14),
         ),
         Row(

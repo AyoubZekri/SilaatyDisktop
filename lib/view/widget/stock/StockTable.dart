@@ -154,7 +154,7 @@ class StockTable extends StatelessWidget {
                                   if (items.isEmpty)
                                     Padding(
                                       padding: const EdgeInsets.all(32.0),
-                                      child: Text("لا توجد منتجات", style: TextStyle(color: titleColor, fontSize: 16)),
+                                      child: Text('no_products'.tr, style: TextStyle(color: titleColor, fontSize: 16)),
                                     ),
                                   for (var item in items) ...[
                                     _buildTableRow(
@@ -226,8 +226,8 @@ class StockTable extends StatelessWidget {
         children: [
           SizedBox(width: 350, child: Text('product_barcode'.tr, textAlign: TextAlign.right, style: style)),
           SizedBox(width: 150, child: Text('sale_price'.tr, textAlign: TextAlign.center, style: style)),
-          SizedBox(width: 150, child: Text('سعر نصف جملة', textAlign: TextAlign.center, style: style)),
-          SizedBox(width: 150, child: Text('سعر الجملة', textAlign: TextAlign.center, style: style)),
+          SizedBox(width: 150, child: Text('half_wholesale_price'.tr, textAlign: TextAlign.center, style: style)),
+          SizedBox(width: 150, child: Text('wholesale_price'.tr, textAlign: TextAlign.center, style: style)),
           SizedBox(width: 150, child: Text('quantity'.tr, textAlign: TextAlign.center, style: style)),
           const Spacer(),
           SizedBox(width: 200, child: Text('actions'.tr, textAlign: TextAlign.center, style: style)),
@@ -376,7 +376,7 @@ class StockTable extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         Text(
-          'عرض $start إلى $end من أصل ${stockController.filteredProducts.length} منتج',
+          'showing_cs_records'.tr.replaceFirst('%s', '$start').replaceFirst('%s', '$end').replaceFirst('%s', '${stockController.filteredProducts.length}').replaceFirst('%s', 'product'.tr),
           style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14),
         ),
         Row(

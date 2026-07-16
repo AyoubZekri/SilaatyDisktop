@@ -253,8 +253,8 @@ class _ProductFormState extends State<_ProductForm> {
     final barcodeData = widget.barcodeController.text;
     if (barcodeData.isEmpty) {
       Get.snackbar(
-        'خطأ',
-        'لا يوجد باركود لطباعته',
+        'error'.tr,
+        'no_barcode_to_print'.tr,
         backgroundColor: Colors.red.withOpacity(0.8),
         colorText: Colors.white,
       );
@@ -296,7 +296,7 @@ class _ProductFormState extends State<_ProductForm> {
 
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => doc.save(),
-      name: 'طباعة باركود - $barcodeData',
+      name: '${'print_barcode'.tr} - $barcodeData',
     );
   }
 
@@ -463,7 +463,7 @@ class _ProductFormState extends State<_ProductForm> {
                       Expanded(
                         child: _buildTextField(
                           'product_name_ar'.tr,
-                          'مثال: حليب كامل الدسم',
+                          'example_product_name'.tr,
                           fieldColor,
                           textColor,
                           controller: widget.nameController,
@@ -493,7 +493,7 @@ class _ProductFormState extends State<_ProductForm> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'نوع الكمية',
+                              'quantity_type'.tr,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -506,7 +506,7 @@ class _ProductFormState extends State<_ProductForm> {
                               children: [
                                 Expanded(
                                   child: _buildToggleButton(
-                                    'بالقطعة',
+                                    'by_piece'.tr,
                                     widget.productType == 1,
                                     () => widget.onProductTypeChanged(1),
                                   ),
@@ -514,7 +514,7 @@ class _ProductFormState extends State<_ProductForm> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: _buildToggleButton(
-                                    'بالميزان',
+                                    'by_weight'.tr,
                                     widget.productType == 2,
                                     () => widget.onProductTypeChanged(2),
                                   ),
@@ -578,7 +578,7 @@ class _ProductFormState extends State<_ProductForm> {
                     children: [
                       Expanded(
                         child: _buildPriceField(
-                          'سعر الجملة',
+                          'wholesale_price'.tr,
                           widget.wholesalePriceController,
                           isDark,
                           textColor,
@@ -589,7 +589,7 @@ class _ProductFormState extends State<_ProductForm> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildPriceField(
-                          'سعر نصف جملة',
+                          'half_wholesale_price'.tr,
                           widget.halfWholesalePriceController,
                           isDark,
                           textColor,
@@ -635,7 +635,7 @@ class _ProductFormState extends State<_ProductForm> {
                           ),
                           const SizedBox(width: 12),
                           _buildToggleButton(
-                            'بالمسح',
+                            'by_scan'.tr,
                             barcodeMode == 2,
                             () => setState(() {
                               barcodeMode = 2;
@@ -713,8 +713,8 @@ class _ProductFormState extends State<_ProductForm> {
                                 ),
                                 child: Row(
                                   children: [
-                                    const Text(
-                                      'طباعة الباركود',
+                                     Text(
+                                      'print_barcode'.tr,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,

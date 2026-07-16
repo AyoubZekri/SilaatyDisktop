@@ -16,6 +16,10 @@ import 'package:uuid/uuid.dart';
 import '../../core/functions/Snacpar.dart';
 import '../../core/services/Services.dart';
 import 'package:image/image.dart' as img;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class Informationitemcontroller extends GetxController {
   late String uuid;
@@ -157,121 +161,80 @@ class Informationitemcontroller extends GetxController {
     if (isPrinting) return;
     isPrinting = true;
     update();
+
     try {
-      int printerWidth = 384; // Fixed width for labels
+      final doc = pw.Document();
 
-      bool isLabelMode =
-          myservices.sharedPreferences?.getString("printer_mode") == "label";
+      var dataFontBold = await rootBundle.load("assets/fonts/static/Cairo-Bold.ttf");
+      var cairoFontBold = pw.Font.ttf(dataFontBold);
 
-      bool bluetoothEnabled = await PrintBluetoothThermal.bluetoothEnabled;
-      if (!bluetoothEnabled) {
-        showSnackbar(
-            "تنبيه".tr, "الرجاء تفعيل البلوتوث أولاً".tr, Colors.orange);
-        return;
-      }
+      final format = PdfPageFormat(40 * PdfPageFormat.mm, 20 * PdfPageFormat.mm, marginAll: 1 * PdfPageFormat.mm);
 
-      bool isConnected = await PrintBluetoothThermal.connectionStatus;
-
-      if (!isConnected) {
-        final List<BluetoothInfo> pairedDevices =
-            await PrintBluetoothThermal.pairedBluetooths;
-
-        if (pairedDevices.isEmpty) {
-          showSnackbar("تنبيه".tr, "لا توجد طابعات مقترنة".tr, Colors.orange);
-          isPrinting = false;
-          update();
-          return;
-        }
-
-        BluetoothInfo? selectedPrinter = await Get.dialog<BluetoothInfo>(
-          AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text("اختر الطابعة".tr, textAlign: TextAlign.center),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: pairedDevices.length,
-                itemBuilder: (context, index) {
-                  final device = pairedDevices[index];
-                  return ListTile(
-                    leading: const Icon(Icons.print,
-                        color: AppColor.backgroundcolor),
-                    title: Text(device.name),
-                    subtitle: Text(device.macAdress),
-                    onTap: () => Get.back(result: device),
-                  );
-                },
+      doc.addPage(
+        pw.Page(
+          pageFormat: format,
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Column(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    name,
+                    style: pw.TextStyle(font: cairoFontBold, fontSize: 7),
+                    maxLines: 1,
+                    textDirection: pw.TextDirection.rtl,
+                  ),
+                  pw.BarcodeWidget(
+                    data: barcode,
+                    barcode: pw.Barcode.code128(),
+                    width: 35 * PdfPageFormat.mm,
+                    height: 10 * PdfPageFormat.mm,
+                    drawText: true,
+                    textStyle: pw.TextStyle(font: cairoFontBold, fontSize: 6),
+                  ),
+                  pw.Text(
+                    "$price DA",
+                    style: pw.TextStyle(font: cairoFontBold, fontSize: 7),
+                  ),
+                ],
               ),
-            ),
-          ),
+            );
+          },
+        ),
+      );
+
+      final printers = await Printing.listPrinters();
+      Printer? selectedPrinter;
+
+      for (var printer in printers) {
+        final printerName = printer.name.toLowerCase();
+        if (printerName.contains('pos') ||
+            printerName.contains('receipt') ||
+            printerName.contains('thermal') ||
+            printerName.contains('80') ||
+            printerName.contains('58') ||
+            printerName.contains('xp') ||
+            printerName.contains('label') ||
+            printerName.contains('barcode') ||
+            printerName.contains('esc')) {
+          selectedPrinter = printer;
+          break;
+        }
+      }
+
+      if (selectedPrinter == null) {
+        showSnackbar(
+          "تنبيه".tr,
+          "لم يتم العثور على طابعة ملصقات متصلة بالجهاز.".tr,
+          Colors.orange,
         );
-
-        if (selectedPrinter == null) {
-          isPrinting = false;
-          update();
-          return;
-        }
-
-        await PrintBluetoothThermal.isPermissionBluetoothGranted;
-        await PrintBluetoothThermal.disconnect;
-        await Future.delayed(const Duration(seconds: 1));
-
-        bool connectionStatus = await PrintBluetoothThermal.connect(
-                macPrinterAddress: selectedPrinter.macAdress)
-            .timeout(const Duration(seconds: 10));
-
-        if (!connectionStatus) {
-          showSnackbar("خطأ".tr, "فشل الاتصال بالطابعة".tr, Colors.red);
-          isPrinting = false;
-          update();
-          return;
-        }
-
-        await Future.delayed(const Duration(seconds: 1));
-      }
-
-      final boundary = ticketKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-
-      if (boundary == null) {
-        showSnackbar("error".tr, "خطأ في تحديد مساحة الطباعة".tr, Colors.red);
-        return;
-      }
-
-      final image = await boundary
-          .toImage(pixelRatio: 3.0)
-          .timeout(const Duration(seconds: 5));
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-
-      if (byteData == null) {
-        showSnackbar("error".tr, "خطأ في معالجة بيانات الصورة".tr, Colors.red);
-        return;
-      }
-
-      Uint8List imageBytes = byteData.buffer.asUint8List();
-
-      img.Image? decodedImage = img.decodeImage(imageBytes);
-      if (decodedImage == null) {
-        showSnackbar("error".tr, "خطأ في فك تشفير الصورة".tr, Colors.red);
-        return;
-      }
-
-      decodedImage = img.copyResize(decodedImage,
-          width: printerWidth, interpolation: img.Interpolation.cubic);
-
-      List<int> bytes;
-      if (isLabelMode) {
-        bytes = convertImageToTSPL(decodedImage);
       } else {
-        bytes = _convertImageToEscPos(decodedImage);
+        await Printing.directPrintPdf(
+          printer: selectedPrinter,
+          onLayout: (PdfPageFormat _) async => doc.save(),
+        );
       }
-
-      // إرسال البيانات كدفعة واحدة (بدون تقسيم أو تأخير)
-      // تقسيم البيانات يسبب تأخير يخدع الطابعة ويجعلها تظن أن الأمر انتهى مما يسبب التشوه
-      await PrintBluetoothThermal.writeBytes(bytes);
-
-      // showSnackbar("نجاح".tr, "تمت الطباعة بنجاح".tr, Colors.green);
     } catch (e) {
       showSnackbar("error".tr, "حدث خطأ أثناء الطباعة".tr, Colors.red);
     } finally {

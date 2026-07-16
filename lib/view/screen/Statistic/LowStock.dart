@@ -42,7 +42,7 @@ class LowStock extends StatelessWidget {
                         textDirection: TextDirection.rtl,
                         children: [
                           Text(
-                            "المخزون المنخفض",
+                            "low_stock".tr,
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
@@ -51,7 +51,7 @@ class LowStock extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "نظرة عامة على المنتجات التي اقتربت من النفاد",
+                            "low_stock_desc".tr,
                             style: TextStyle(
                               fontSize: 14,
                               color: isDark ? AppColor.textSecondary : Colors.grey.shade500,

@@ -20,12 +20,11 @@ class SaleCart extends StatelessWidget {
   Widget build(BuildContext context) {
     final sidebarController = Get.find<Siedbarcontroller>();
     final saleController = Get.find<SaleController>();
-    final outerScrollController = ScrollController();
     final itemsScrollController = ScrollController();
 
     return Obx(() {
       final isDark = sidebarController.isDarkMode.value;
-      final surfaceColor = isDark ? AppColor.surfaceDark : Colors.white;
+      // final surfaceColor = isDark ? AppColor.surfaceDark : Colors.white;
       final textColor = isDark ? AppColor.textDark : AppColor.textLight;
 
       // Determine if it's a Purchase (Supplier) or Sale (Customer)
@@ -187,10 +186,10 @@ class SaleCart extends StatelessWidget {
                       children: [
                         Text(
                           controller.isCashCustomer.value
-                              ? (isPurchase ? 'عملية توريد سريعة' : 'زبون نقدي')
+                              ? (isPurchase ? 'quick_supply_operation'.tr : 'cash_customer'.tr)
                               : (isPurchase
-                                    ? 'المورد المختار'
-                                    : 'اسم الزبون الحالي'),
+                                    ? 'selected_supplier'.tr
+                                    : 'current_customer_name'.tr),
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.grey,
@@ -199,12 +198,12 @@ class SaleCart extends StatelessWidget {
                         Text(
                           controller.isCashCustomer.value
                               ? (isPurchase
-                                    ? 'مورد غير معرف'
-                                    : 'عملية بيع سريعة')
+                                    ? 'unidentified_supplier'.tr
+                                    : 'quick_sale_operation'.tr)
                               : (controller.selectedName.value.isEmpty
                                     ? (isPurchase
-                                          ? 'اضغط لاختيار مورد'
-                                          : 'اضغط لاختيار عميل')
+                                          ? 'click_to_select_supplier'.tr
+                                          : 'click_to_select_customer'.tr)
                                     : '${controller.selectedName.value} ${controller.selectedFamilyName.value}'),
                           style: TextStyle(
                             fontSize: 14,
@@ -278,7 +277,7 @@ class SaleCart extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        isPurchase ? 'اختيار مورد' : 'اختيار عميل',
+                        isPurchase ? 'select_supplier'.tr : 'select_customer'.tr,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -301,8 +300,8 @@ class SaleCart extends StatelessWidget {
                 onChanged: (val) => controller.searchCustomer(val),
                 decoration: InputDecoration(
                   hintText: isPurchase
-                      ? 'ابحث عن اسم المورد أو رقم الهاتف...'
-                      : 'ابحث عن اسم العميل أو الهاتف...',
+                      ? 'search_supplier_name_phone'.tr
+                      : 'search_customer_name_phone'.tr,
                   hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
                   prefixIcon: const Icon(
                     Icons.search_rounded,
@@ -324,11 +323,11 @@ class SaleCart extends StatelessWidget {
               Flexible(
                 child: Obx(() {
                   if (controller.filteredCustomersList.isEmpty) {
-                    return const Center(
+                    return  Center(
                       child: Padding(
                         padding: EdgeInsets.all(20.0),
                         child: Text(
-                          "لا توجد بيانات",
+                          'no_data'.tr,
                           style: TextStyle(color: Colors.grey),
                         ),
                       ),
@@ -435,8 +434,8 @@ class SaleCart extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child: const Text(
-                                'اختيار',
+                              child:  Text(
+                                'select'.tr,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -465,8 +464,8 @@ class SaleCart extends StatelessWidget {
                       controller.selectedName.value = '';
                       controller.selectedFamilyName.value = '';
                       controller.selectedCustomer.value = isPurchase
-                          ? 'مورد غير مسجل'
-                          : 'زبون نقدي';
+                          ? 'unregistered_supplier'.tr
+                          : 'cash_customer'.tr;
                       Get.back();
                     },
                     icon: Icon(
@@ -476,7 +475,7 @@ class SaleCart extends StatelessWidget {
                       size: 20,
                     ),
                     label: Text(
-                      isPurchase ? 'مورد غير مسجل' : 'زبون نقدي',
+                      isPurchase ? 'unregistered_supplier'.tr : 'cash_customer'.tr,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     style: TextButton.styleFrom(foregroundColor: Colors.green),
@@ -507,7 +506,7 @@ class SaleCart extends StatelessWidget {
                       size: 20,
                     ),
                     label: Text(
-                      isPurchase ? 'إضافة مورد جديد' : 'إضافة عميل جديد',
+                      isPurchase ? 'add_new_supplier'.tr : 'add_new_customer'.tr,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     style: TextButton.styleFrom(
@@ -641,7 +640,7 @@ class SaleCart extends StatelessWidget {
     final isPurchase = controller.type == 1;
     final primaryColor = isPurchase ? Colors.blue : AppColor.primaryPurple;
 
-    final String name = item['name'] ?? 'منتج غير معروف';
+    final String name = item['name'] ?? 'unknown_product'.tr;
     final bool isWeighed = item['type_item'] == 2;
     double rawQty = double.tryParse(item['quantity'].toString()) ?? 1.0;
     String displayQty = rawQty == rawQty.toInt()
@@ -718,7 +717,7 @@ class SaleCart extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'سعر الوحدة: $displayUnitPrice ${'currency_dz'.tr}',
+                          '${'unit_price'.tr}: $displayUnitPrice ${'currency_dz'.tr}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -808,7 +807,7 @@ class SaleCart extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'تعديل سعر الوحدة',
+                'edit_unit_price'.tr,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -829,7 +828,7 @@ class SaleCart extends StatelessWidget {
                   color: primaryColor,
                 ),
                 decoration: InputDecoration(
-                  labelText: 'السعر الجديد'.tr,
+                  labelText: 'new_price'.tr,
                   filled: true,
                   fillColor: isDark
                       ? Colors.white.withOpacity(0.05)
@@ -860,8 +859,8 @@ class SaleCart extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text(
-                        'حفظ',
+                      child:  Text(
+                        'save'.tr,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -879,8 +878,8 @@ class SaleCart extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        'إلغاء',
+                      child:  Text(
+                        'cancel'.tr,
                         style: TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.bold,
@@ -909,7 +908,7 @@ class SaleCart extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withOpacity(0.02) : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius:  BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -927,8 +926,8 @@ class SaleCart extends StatelessWidget {
               onPressed: () {
                 if (controller.selectedProducts.isEmpty) {
                   showSnackbar(
-                    "تنبيه".tr,
-                    "لا توجد منتجات حالياً، أضف منتج أولاً.".tr,
+                    "alert".tr,
+                    "no_products_add_first".tr,
                     Colors.orange,
                   );
                   return;
@@ -946,13 +945,13 @@ class SaleCart extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: const Row(
+              child:  Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.save_rounded, color: Colors.white, size: 28),
                   SizedBox(width: 12),
                   Text(
-                    'حفظ',
+                    'save'.tr,
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -1042,9 +1041,9 @@ class SaleCart extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Center(
+                   Center(
                     child: Text(
-                      'تأكيد الدفع',
+                      'confirm_payment'.tr,
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
@@ -1072,7 +1071,7 @@ class SaleCart extends StatelessWidget {
                           textDirection: TextDirection.rtl,
                           children: [
                             Text(
-                              'المجموع الكلي:',
+                              'grand_total'.tr + ':',
                               style: TextStyle(
                                 color: isDark
                                     ? Colors.grey.shade400
@@ -1103,8 +1102,8 @@ class SaleCart extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           textDirection: TextDirection.rtl,
                           children: [
-                            const Text(
-                              'المبلغ المستحق:',
+                             Text(
+                              'amount_due'.tr + ':',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -1133,8 +1132,8 @@ class SaleCart extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text(
-                              'الخصم',
+                             Text(
+                              'discount'.tr,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -1168,8 +1167,8 @@ class SaleCart extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text(
-                              'قيمة الدفع',
+                             Text(
+                              'payment_amount'.tr,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -1233,7 +1232,7 @@ class SaleCart extends StatelessWidget {
                                 );
                                 Get.back();
                               },
-                              child: const Padding(
+                              child:  Padding(
                                 padding: EdgeInsets.symmetric(vertical: 16),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1246,7 +1245,7 @@ class SaleCart extends StatelessWidget {
                                     SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
-                                        'تأكيد وطباعة',
+                                        'confirm_and_print'.tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,
@@ -1306,7 +1305,7 @@ class SaleCart extends StatelessWidget {
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
-                                        'تأكيد فقط',
+                                        'confirm_only'.tr,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 14,
@@ -1338,7 +1337,7 @@ class SaleCart extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'إلغاء',
+                          'cancel'.tr,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -1482,7 +1481,7 @@ class _CartItemQtyControlState extends State<_CartItemQtyControl> {
       } else {
         showSnackbar(
           "error".tr,
-          "يجب أن تكون الكمية أو الوزن أكبر من صفر".tr,
+          "qty_or_weight_must_be_greater_than_zero".tr,
           Colors.red,
         );
         _textController.text = widget.initialQty;
@@ -1499,7 +1498,7 @@ class _CartItemQtyControlState extends State<_CartItemQtyControl> {
       } else {
         showSnackbar(
           "error".tr,
-          "يجب أن تكون الكمية أكبر من صفر".tr,
+          "qty_must_be_greater_than_zero".tr,
           Colors.red,
         );
         _textController.text = widget.initialQty;

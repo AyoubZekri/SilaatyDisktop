@@ -303,7 +303,7 @@ class _UpdateStockDialogState extends State<UpdateStockDialog> {
                             final stockController = Get.find<Itemscontroller>();
                             await stockController.addQuantity(widget.product, qty);
                           } else {
-                            showSnackbar("تنبيه", "يجب أن تكون الكمية المضافة أكبر من صفر", Colors.orange);
+                            showSnackbar('alert'.tr, 'qty_must_be_greater_than_zero'.tr, Colors.orange);
                           }
                         },
                         icon: const Icon(

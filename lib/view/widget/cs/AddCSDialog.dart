@@ -173,7 +173,7 @@ class _AddCSDialogState extends State<AddCSDialog> {
                     Expanded(
                       child: _buildTextField(
                         label: 'customer_supplier_name'.tr,
-                        hint: 'مثال: أحمد',
+                        hint: 'example_ahmed'.tr,
                         fieldColor: fieldColor,
                         textColor: textColor,
                         controller: widget.isEdit ? editCtrl!.nameController : addCtrl!.nameController,
@@ -184,7 +184,7 @@ class _AddCSDialogState extends State<AddCSDialog> {
                     Expanded(
                       child: _buildTextField(
                         label: 'last_name'.tr,
-                        hint: 'مثال: العلي',
+                        hint: 'example_al_ali'.tr,
                         fieldColor: fieldColor,
                         textColor: textColor,
                         controller: widget.isEdit ? editCtrl!.familyNameController : addCtrl!.familyNameController,

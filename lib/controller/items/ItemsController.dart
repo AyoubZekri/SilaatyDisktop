@@ -500,18 +500,18 @@ class Itemscontroller extends GetxController {
 
   Future<void> deleteProduct(Prodact.Data item) async {
     dialogDelete(
-      title: "تأكيد الحذف".tr,
-      content: "هل أنت متأكد من حذف هذا المنتج؟".tr,
-      confirmText: "نعم".tr,
-      cancelText: "إلغاء".tr,
+      title: 'confirm_deletion'.tr,
+      content: 'confirm_delete_product_msg'.tr,
+      confirmText: 'yes'.tr,
+      cancelText: 'cancel'.tr,
       onConfirm: () async {
         Map<String, Object?> data = {"uuid": item.uuid};
         bool success = await prodactData.deleteProdact(data);
         if (success) {
-          showSnackbar("success".tr, "تم حذف المنتج بنجاح".tr, Colors.green);
+          showSnackbar('success'.tr, 'product_deleted_success'.tr, Colors.green);
           await refreshProductsList();
         } else {
-          showSnackbar("error".tr, "فشل في حذف المنتج".tr, Colors.red);
+          showSnackbar('error'.tr, 'product_delete_failed'.tr, Colors.red);
         }
       },
     );

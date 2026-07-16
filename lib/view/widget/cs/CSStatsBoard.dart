@@ -53,7 +53,7 @@ class CSStatsBoard extends StatelessWidget {
               // Total Debt Card (They owe us)
               Expanded(
                 child: _buildStatCard(
-                  title: 'إجمالي الديون (لنا)',
+                  title: 'total_debts_for_us'.tr,
                   value: totalDebt.toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), ''),
                   currency: 'currency_dz'.tr,
                   isPositive: false,
@@ -68,7 +68,7 @@ class CSStatsBoard extends StatelessWidget {
               // Total Credit Card (We owe them)
               Expanded(
                 child: _buildStatCard(
-                  title: 'إجمالي المستحقات (علينا)',
+                  title: 'total_dues_on_us'.tr,
                   value: totalCredit.toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), ''),
                   currency: 'currency_dz'.tr,
                   isDark: isDark,

@@ -414,7 +414,7 @@ class CSTable extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         Text(
-          'عرض $start إلى $end من أصل ${controller.transaction.length} جهة',
+          'showing_cs_records'.tr.replaceFirst('%s', '$start').replaceFirst('%s', '$end').replaceFirst('%s', '${controller.transaction.length}').replaceFirst('%s', 'party'.tr),
           style: TextStyle(color: textColor.withOpacity(0.7), fontSize: 14),
         ),
         Row(

@@ -32,8 +32,8 @@ class InvoiceFilterBar extends StatelessWidget {
               onChanged: (value) => controller.searchInvoices(value),
               textAlign: TextAlign.right,
               style: TextStyle(color: textColor, fontSize: 14),
-              decoration: const InputDecoration(
-                hintText: 'بحث برقم الفاتورة أو اسم العميل...',
+              decoration: InputDecoration(
+                hintText: 'search_invoice_customer'.tr,
                 hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                 prefixIcon: Icon(Icons.search_rounded, color: Colors.grey),
                 border: InputBorder.none,
@@ -41,19 +41,23 @@ class InvoiceFilterBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 32),
-          _filterChip(controller, 'الكل', 0),
+          _filterChip(controller, 'all'.tr, 0),
           const SizedBox(width: 12),
-          _filterChip(controller, 'مدفوعة', 1),
+          _filterChip(controller, 'paid'.tr, 1),
           const SizedBox(width: 12),
-          _filterChip(controller, 'غير مدفوعة', 2),
+          _filterChip(controller, 'unpaid'.tr, 2),
           const SizedBox(width: 12),
-          _filterChip(controller, 'جزئية', 3),
+          _filterChip(controller, 'partial'.tr, 3),
         ],
       ),
     );
   }
 
-  Widget _filterChip(Invoicesallcontroller controller, String label, int index) {
+  Widget _filterChip(
+    Invoicesallcontroller controller,
+    String label,
+    int index,
+  ) {
     final isSelected = controller.filterIndex == index;
     return FilterChip(
       label: Text(label),
@@ -62,9 +66,7 @@ class InvoiceFilterBar extends StatelessWidget {
       onSelected: (val) {
         controller.setFilterIndex(index);
       },
-      backgroundColor: isDark
-          ? Colors.grey[850]
-          : const Color(0xFFF1F3F9),
+      backgroundColor: isDark ? Colors.grey[850] : const Color(0xFFF1F3F9),
       selectedColor: AppColor.primaryPurple,
       labelStyle: TextStyle(
         color: isSelected

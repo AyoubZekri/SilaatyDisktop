@@ -21,8 +21,8 @@ class StatsSection extends StatelessWidget {
               textDirection: TextDirection.rtl,
               children: [
                 _buildStatCard(
-                  title: 'صافي الأرباح',
-                  value: '${(stats?.todayNetProfit ?? 0).toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '')} د.ج',
+                  title: 'net_profit'.tr,
+                  value: '${(stats?.todayNetProfit ?? 0).toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '')} ${'dzd'.tr}',
                   percentage: '', // removed percentage for now as it's not dynamically calculated
                   isPositive: true,
                   icon: Icons.trending_up,
@@ -33,8 +33,8 @@ class StatsSection extends StatelessWidget {
                   isDark: isDark,
                 ),
                 _buildStatCard(
-                  title: 'دخل اليوم',
-                  value: '${(stats?.todayIncome ?? 0).toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '')} د.ج',
+                  title: 'today_income'.tr,
+                  value: '${(stats?.todayIncome ?? 0).toStringAsFixed(2).replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '')} ${'dzd'.tr}',
                   percentage: '',
                   isPositive: true,
                   icon: Icons.account_balance_wallet_outlined,
@@ -45,9 +45,9 @@ class StatsSection extends StatelessWidget {
                   isDark: isDark,
                 ),
                 _buildStatCard(
-                  title: 'المخزون المنخفض',
+                  title: 'low_stock'.tr,
                   value: '${stats?.lowStockCount ?? 0}',
-                  percentage: 'منتج',
+                  percentage: 'product'.tr,
                   isPositive: false,
                   icon: Icons.warning_amber_rounded,
                   iconBg: isDark
@@ -57,9 +57,9 @@ class StatsSection extends StatelessWidget {
                   isDark: isDark,
                 ),
                 _buildStatCard(
-                  title: 'عدد فواتير اليوم',
+                  title: 'today_invoices_count'.tr,
                   value: '${stats?.todayInvoices ?? 0}',
-                  percentage: 'فاتورة',
+                  percentage: 'invoice'.tr,
                   isPositive: true,
                   icon: Icons.shopping_basket_outlined,
                   iconBg: isDark

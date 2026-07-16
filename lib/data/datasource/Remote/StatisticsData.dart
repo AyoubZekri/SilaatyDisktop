@@ -81,8 +81,7 @@ class Statisticsdata {
       case 3: // هذا الشهر
         dateCondition =
             "strftime('%Y-%m', i.created_at) = strftime('%Y-%m', 'now')";
-        // نقوم بتقسيم الشهر إلى 4 أسابيع (0, 1, 2, 3) لتتطابق مع واجهة المستخدم
-        groupBy = "MIN((CAST(strftime('%d', i.created_at) AS INTEGER) - 1) / 7, 3)";
+        groupBy = "CAST(strftime('%d', i.created_at) AS INTEGER)";
         break;
       default: // هذا العام
         dateCondition = "strftime('%Y', i.created_at) = strftime('%Y', 'now')";

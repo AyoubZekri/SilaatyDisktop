@@ -30,16 +30,18 @@ class InvoiceHeader extends StatelessWidget {
       invoice?.name,
     ].where((e) => e != null && e.trim().isNotEmpty).join(" ");
 
-    final safeCustomerName = customerName.isEmpty ? "غير معروف".tr : customerName;
-    
+    final safeCustomerName = customerName.isEmpty
+        ? "unknown".tr
+        : customerName;
+
     final issueDate = invoice?.date ?? '';
     final saleType = productSale?.saleType == 3
-        ? 'جملة'.tr
-        : (productSale?.saleType == 2 ? 'نصف جملة'.tr : 'تجزئة'.tr);
+        ? 'wholesale'.tr
+        : (productSale?.saleType == 2 ? 'half_wholesale'.tr : 'retail'.tr);
 
     final remaining = controller.getRemainingAmount();
     final total = double.tryParse(productSale?.sumPrice.toString() ?? "0") ?? 0;
-    
+
     String statusStr = '';
     Color statusColor = Colors.green;
     IconData statusIcon = Icons.check_circle;
@@ -109,11 +111,7 @@ class InvoiceHeader extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(
-                              statusIcon,
-                              size: 14,
-                              color: statusColor,
-                            ),
+                            Icon(statusIcon, size: 14, color: statusColor),
                             const SizedBox(width: 6),
                             Text(
                               statusStr,
@@ -181,7 +179,7 @@ class InvoiceHeader extends StatelessWidget {
                       },
                       child: _buildHeaderBtn(
                         Icons.receipt_long_outlined,
-                        'طباعة حرارية'.tr,
+                        'thermal_print'.tr,
                         Colors.teal.withOpacity(0.1),
                         Colors.teal,
                         false,
@@ -253,6 +251,7 @@ class InvoiceHeader extends StatelessWidget {
   }
 
   void _showPaymentDialog(BuildContext context) {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     Get.dialog(
       barrierColor: Colors.black.withValues(alpha: 0.5),
       Dialog(
@@ -271,88 +270,131 @@ class InvoiceHeader extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColor.primaryPurple.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.add_card_rounded, size: 32, color: AppColor.primaryPurple),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                "register_payment".tr,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: controller.paymentPrice,
-                keyboardType: TextInputType.number,
-                style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  labelText: "amount".tr,
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  floatingLabelAlignment: FloatingLabelAlignment.center,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColor.primaryPurple.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+                  child: const Icon(
+                    Icons.add_card_rounded,
+                    size: 32,
+                    color: AppColor.primaryPurple,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: AppColor.primaryPurple, width: 2),
-                  ),
-                  filled: true,
-                  fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Get.back(),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text("cancel".tr, style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                const SizedBox(height: 24),
+                Text(
+                  "register_payment".tr,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: controller.paymentPrice,
+                  keyboardType: TextInputType.number,
+                  validator: (val) => validInput(val ?? "", 20, 1, "decimal"),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    labelText: "amount".tr,
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    floatingLabelAlignment: FloatingLabelAlignment.center,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 24,
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (controller.uuid != null && controller.paymentPrice.text.isNotEmpty) {
-                          controller.Editinvoise(controller.uuid!);
-                          Get.back();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.primaryPurple,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.3),
                       ),
-                      child: Text("confirm".tr, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: AppColor.primaryPurple,
+                        width: 2,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : Colors.grey.withValues(alpha: 0.05),
                   ),
-                ],
-              )
-            ],
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "cancel".tr,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (formKey.currentState!.validate()) {
+                            if (controller.uuid != null &&
+                                controller.paymentPrice.text.isNotEmpty) {
+                              controller.Editinvoise(controller.uuid!);
+                              Get.back();
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColor.primaryPurple,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "confirm".tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -360,6 +402,7 @@ class InvoiceHeader extends StatelessWidget {
   }
 
   void _showDiscountDialog(BuildContext context) {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     Get.dialog(
       barrierColor: Colors.black.withValues(alpha: 0.5),
       Dialog(
@@ -378,88 +421,131 @@ class InvoiceHeader extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.percent_rounded, size: 32, color: Colors.orange),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                "discount".tr,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 32),
-              TextFormField(
-                controller: controller.discount,
-                keyboardType: TextInputType.number,
-                style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  labelText: "discount_amount".tr,
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  floatingLabelAlignment: FloatingLabelAlignment.center,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+                  child: const Icon(
+                    Icons.percent_rounded,
+                    size: 32,
+                    color: Colors.orange,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Colors.orange, width: 2),
-                  ),
-                  filled: true,
-                  fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05),
                 ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Get.back(),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text("cancel".tr, style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                const SizedBox(height: 24),
+                Text(
+                  "discount".tr,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                TextFormField(
+                  controller: controller.discount,
+                  keyboardType: TextInputType.number,
+                  validator: (val) => validInput(val ?? "", 20, 1, "decimal"),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    labelText: "discount_amount".tr,
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    floatingLabelAlignment: FloatingLabelAlignment.center,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 24,
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (controller.uuid != null && controller.discount.text.isNotEmpty) {
-                          controller.Editdiscount(controller.uuid!);
-                          Get.back();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.3),
                       ),
-                      child: Text("confirm".tr, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Colors.orange,
+                        width: 2,
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : Colors.grey.withValues(alpha: 0.05),
                   ),
-                ],
-              )
-            ],
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "cancel".tr,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (formKey.currentState!.validate()) {
+                            if (controller.uuid != null &&
+                                controller.discount.text.isNotEmpty) {
+                              controller.Editdiscount(controller.uuid!);
+                              Get.back();
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "confirm".tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -494,7 +580,11 @@ class InvoiceHeader extends StatelessWidget {
                   color: Colors.red.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.delete_outline, size: 32, color: Colors.red),
+                child: const Icon(
+                  Icons.delete_outline,
+                  size: 32,
+                  color: Colors.red,
+                ),
               ),
               const SizedBox(height: 24),
               Text(
@@ -509,10 +599,7 @@ class InvoiceHeader extends StatelessWidget {
               Text(
                 "delete_message".tr,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
               const SizedBox(height: 32),
               Row(
@@ -522,9 +609,17 @@ class InvoiceHeader extends StatelessWidget {
                       onPressed: () => Get.back(),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text("cancel".tr, style: const TextStyle(color: Colors.grey, fontSize: 16)),
+                      child: Text(
+                        "cancel".tr,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -541,13 +636,21 @@ class InvoiceHeader extends StatelessWidget {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      child: Text("delete_confirm_btn".tr, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text(
+                        "delete_confirm_btn".tr,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),

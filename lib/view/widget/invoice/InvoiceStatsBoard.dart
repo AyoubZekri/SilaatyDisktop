@@ -27,28 +27,28 @@ class InvoiceStatsBoard extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         _buildStatCard(
-          'إجمالي الفواتير',
+          'total_invoices'.tr,
           '${controller.invoices.length}',
           Icons.receipt_long_rounded,
           Colors.blue,
         ),
         const SizedBox(width: 24),
         _buildStatCard(
-          'المبالغ المحصلة',
+          'collected_amounts'.tr,
           '${_formatNumber(controller.totalCollected)} ${'dz'.tr}',
           Icons.check_circle_rounded,
           Colors.green,
         ),
         const SizedBox(width: 24),
         _buildStatCard(
-          'مبالغ معلقة',
+          'pending_amounts'.tr,
           '${_formatNumber(controller.totalPending)} ${'dz'.tr}',
           Icons.pending_actions_rounded,
           Colors.orange,
         ),
         const SizedBox(width: 24),
         _buildStatCard(
-          'متأخرة السداد',
+          'overdue_payments'.tr,
           '${controller.totalOverdue}',
           Icons.report_problem_rounded,
           Colors.red,

@@ -77,7 +77,7 @@ class InvoiceTable extends StatelessWidget {
                               ? Padding(
                                   padding: const EdgeInsets.all(32.0),
                                   child: Text(
-                                    'لا توجد فواتير مطابقة للبحث',
+                                    'no_matching_invoices'.tr,
                                     style: TextStyle(color: subtitleColor, fontSize: 16),
                                   ),
                                 )
@@ -116,14 +116,14 @@ class InvoiceTable extends StatelessWidget {
           SizedBox(
             width: 170,
             child: Text(
-              'رقم الفاتورة',
+              'invoice_number'.tr,
               textAlign: TextAlign.right,
               style: style,
             ),
           ),
           SizedBox(
             width: 180,
-            child: Text('التاريخ', textAlign: TextAlign.right, style: style),
+            child: Text('date'.tr, textAlign: TextAlign.right, style: style),
           ),
           SizedBox(
             width: 350,
@@ -136,14 +136,14 @@ class InvoiceTable extends StatelessWidget {
           SizedBox(
             width: 180,
             child: Text(
-              'المبلغ الإجمالي',
+              'total_amount'.tr,
               textAlign: TextAlign.right,
               style: style,
             ),
           ),
           SizedBox(
             width: 120,
-            child: Center(child: Text('الحالة', style: style)),
+            child: Center(child: Text('status'.tr, style: style)),
           ),
           const Spacer(),
           SizedBox(
@@ -158,15 +158,15 @@ class InvoiceTable extends StatelessWidget {
   Widget _buildTableRow(Invoicesallcontroller controller, int index) {
     final invoice = controller.filteredInvoices[index];
     
-    String status = 'مدفوعة';
+    String status = 'paid'.tr;
     Color color = const Color(0xFF28C76F);
     
     if (invoice.remaining > 0) {
       if (invoice.paymentPrice == 0 || invoice.paymentPrice == null) {
-        status = 'غير مدفوعة';
+        status = 'unpaid'.tr;
         color = const Color(0xFFF44336);
       } else {
-        status = 'جزئية';
+        status = 'partial'.tr;
         color = const Color(0xFFFF9F43);
       }
     }
@@ -236,7 +236,7 @@ class InvoiceTable extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        clientName.trim().isEmpty ? 'عميل غير معروف' : clientName,
+                        clientName.trim().isEmpty ? 'unknown_customer'.tr : clientName,
                         style: TextStyle(
                           color: titleColor,
                           fontWeight: FontWeight.bold,
@@ -247,7 +247,7 @@ class InvoiceTable extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'عميل نقدي',
+                        'cash_customer'.tr,
                         style: TextStyle(color: subtitleColor, fontSize: 13),
                       ),
                     ],
@@ -355,7 +355,7 @@ class InvoiceTable extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         Text(
-          'عرض $start إلى $end من أصل ${controller.filteredInvoices.length} فاتورة',
+          'showing_cs_records'.tr.replaceFirst('%s', '$start').replaceFirst('%s', '$end').replaceFirst('%s', '${controller.filteredInvoices.length}').replaceFirst('%s', 'invoice'.tr),
           style: TextStyle(color: subtitleColor, fontSize: 14),
         ),
         Row(

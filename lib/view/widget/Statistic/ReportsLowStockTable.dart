@@ -362,7 +362,7 @@ class ReportsLowStockTable extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         Text(
-          'عرض $start إلى $end من أصل $total منتج',
+          'showing_cs_records'.tr.replaceFirst('%s', '$start').replaceFirst('%s', '$end').replaceFirst('%s', '$total').replaceFirst('%s', 'product'.tr),
           style: TextStyle(color: textColor, fontSize: 14),
         ),
         Row(

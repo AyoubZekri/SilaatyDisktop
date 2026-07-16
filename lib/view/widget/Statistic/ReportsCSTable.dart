@@ -342,7 +342,7 @@ class ReportsCSTable extends StatelessWidget {
       textDirection: TextDirection.rtl,
       children: [
         Text(
-          'عرض $startItem إلى $endItem من أصل $totalItems سجل',
+          'showing_cs_records'.tr.replaceFirst('%s', '$startItem').replaceFirst('%s', '$endItem').replaceFirst('%s', '$totalItems').replaceFirst('%s', 'record'.tr),
           style: TextStyle(color: textColor, fontSize: 14),
         ),
         Row(
