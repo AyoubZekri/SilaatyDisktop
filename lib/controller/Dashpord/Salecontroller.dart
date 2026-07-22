@@ -511,22 +511,23 @@ class SaleController extends GetxController {
     update();
     String cleaned = codepar.replaceAll(RegExp(r'[^\d]'), '');
     print(cleaned);
+    
+    String searchCode = cleaned;
     double? scaleWeight;
 
     // Logic for Scale Barcode (EAN-13 starting with 2)
-    // Common format: 2 (1 digit) + Product Code (5 digits) + Weight/Price (5 digits) + Check (1 digit)
-    if (cleaned.length == 13 && cleaned.startsWith('2')) {
-      // searchCode =
-      //     cleaned.substring(1, 7); // Extract product code (e.g. 5 or 6 digits)
+    if (cleaned.length == 13 && cleaned.startsWith('25')) {
+      searchCode = cleaned.substring(0, 7); // Extract prefix + product code (7 digits)
       String weightPart = cleaned.substring(7, 12); // Extract weight
       scaleWeight = double.tryParse(weightPart) != null
-          ? double.parse(weightPart) /
-                1000.0 // Assuming grams to kg
+          ? double.parse(weightPart) / 1000.0 // Assuming grams to kg
           : null;
-      print("⚖️  Weight $scaleWeight");
+      print("⚖️  Scale Item Detected - Base Code: $searchCode, Weight: $scaleWeight kg");
     }
 
-    Map<String, Object?> data = {"codepar": cleaned};
+    Map<String, Object?> data = {
+      "codepar": searchCode,
+    };
 
     print("==================$cleaned");
 
@@ -540,7 +541,12 @@ class SaleController extends GetxController {
       final uuid = productData['uuid'] ?? productData['id'] ?? '';
       final name = productData['product_name'] ?? '';
       final price = getSalePrice(productData);
-      final typeItem = productData['type'];
+      int typeItem = int.tryParse(productData['type'].toString()) ?? 1;
+
+      bool isScaleBarcode = cleaned.length == 13 && cleaned.startsWith('25');
+      if (isScaleBarcode) {
+        typeItem = 2; // Force to weighted item if a scale barcode is detected
+      }
 
       final existingIndex = selectedProducts.indexWhere(
         (item) => item['uuid'] == uuid,

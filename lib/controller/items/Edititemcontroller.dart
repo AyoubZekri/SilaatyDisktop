@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:silaaty_desktop/core/functions/uploudfiler.dart';
 import 'package:silaaty_desktop/data/datasource/Remote/Prodact/Prodact_data.dart';
 import 'package:silaaty_desktop/data/model/Product_Model.dart' as Prodact;
@@ -50,10 +51,35 @@ class Edititemcontroller extends GetxController {
 
   void toggleBarcodeMode(int mode, BuildContext context) {
     barcodeMode = mode;
-    if (mode == 2) {
+    if (mode == 0) {
+      barcodeController.text = generateBarcode();
+    } else if (mode == 1) {
+      barcodeController.clear();
+    } else if (mode == 2) {
+      barcodeController.clear();
       scanBarcode(context);
     }
     update();
+  }
+
+  void typeProduct(int types) {
+    type = types;
+    if (type == 2) {
+      if (barcodeMode == 0) {
+        barcodeController.text = generateBarcode();
+      } else if (barcodeController.text.length != 5) {
+        barcodeController.text = '';
+      }
+    }
+    update();
+  }
+
+  String generateBarcode() {
+    final random = Random();
+    if (type == 2) {
+      return List.generate(5, (_) => random.nextInt(10)).join();
+    }
+    return '1' + List.generate(10, (_) => random.nextInt(10)).join();
   }
 
   getCategoris() async {
@@ -90,6 +116,11 @@ class Edititemcontroller extends GetxController {
       return;
     }
 
+    if (type == 2 && barcodeController.text.length != 5) {
+      showSnackbar("error".tr, "يجب أن يتكون باركود الميزان من 5 أرقام", Colors.red);
+      return;
+    }
+
     final data = {
       "uuid": uuid,
       'product_name': nameController.text,
@@ -103,7 +134,9 @@ class Edititemcontroller extends GetxController {
       'product_price_total': priceTotal.toString(),
       'product_price_total_purchase': priceTotalPurchase.toString(),
       'product_price_purchase': pricePurchaseController.text,
-      "codepar": barcodeController.text,
+      "codepar": (type == 2 && !barcodeController.text.startsWith('25'))
+          ? '25' + barcodeController.text
+          : barcodeController.text,
       'type': type,
     };
 
@@ -170,7 +203,12 @@ class Edititemcontroller extends GetxController {
     );
     priseWholesaleController.text = _formatNum(product.productPriceWholesale);
     pricePurchaseController.text = _formatNum(product.productPricePurchase);
-    barcodeController.text = product.codepar?.toString() ?? "";
+    type = product.type ?? 1;
+    barcodeController.text = (type == 2 &&
+            product.codepar != null &&
+            product.codepar.toString().length >= 5)
+        ? product.codepar.toString().substring(product.codepar.toString().length - 5)
+        : (product.codepar?.toString() ?? "");
     quantityController.text = _formatNum(product.productQuantity);
     selectedtypeuuId = product.categorisuuId;
     uuid = product.uuid;

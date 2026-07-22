@@ -19,7 +19,7 @@ class SQLDB {
   Future<Database> intialDb() async {
     Directory documentsDirectory = await getApplicationSupportDirectory();
     String path = join(documentsDirectory.path, 'Silaaty.db');
-    
+
     // استخدام FFI مباشرة
     var databaseFactory = databaseFactoryFfi;
     Database mydb = await databaseFactory.openDatabase(
@@ -36,8 +36,9 @@ class SQLDB {
   Future<void> _onUpgrade(Database db, int oldversion, int newVersion) async {
     print("_onUpgrade: from v$oldversion to v$newVersion ===============");
     if (oldversion < 2) {
-      await db
-          .execute('ALTER TABLE products ADD COLUMN type INTEGER DEFAULT 1');
+      await db.execute(
+        'ALTER TABLE products ADD COLUMN type INTEGER DEFAULT 1',
+      );
     }
 
     if (oldversion < 3) {
@@ -88,18 +89,23 @@ class SQLDB {
 
     if (oldversion < 4) {
       await db.execute(
-          'ALTER TABLE products ADD COLUMN product_price_half_wholesale REAL DEFAULT 0.00');
+        'ALTER TABLE products ADD COLUMN product_price_half_wholesale REAL DEFAULT 0.00',
+      );
       await db.execute(
-          'ALTER TABLE products ADD COLUMN product_price_wholesale REAL DEFAULT 0.00');
+        'ALTER TABLE products ADD COLUMN product_price_wholesale REAL DEFAULT 0.00',
+      );
       await db.execute(
-          'ALTER TABLE invoies ADD COLUMN sale_type INTEGER DEFAULT 1');
+        'ALTER TABLE invoies ADD COLUMN sale_type INTEGER DEFAULT 1',
+      );
     }
 
     if (oldversion < 5) {
       await db.execute(
-          'ALTER TABLE invoies ADD COLUMN seller_id INTEGER DEFAULT NULL');
+        'ALTER TABLE invoies ADD COLUMN seller_id INTEGER DEFAULT NULL',
+      );
       await db.execute(
-          'ALTER TABLE sales ADD COLUMN seller_id INTEGER DEFAULT NULL');
+        'ALTER TABLE sales ADD COLUMN seller_id INTEGER DEFAULT NULL',
+      );
     }
   }
 
@@ -279,13 +285,16 @@ class SQLDB {
 
     await batch.commit();
     print(
-        'Database and tables (with sync) created successfully ======================');
+      'Database and tables (with sync) created successfully ======================',
+    );
   }
 
   // CRUD METHODS =============================================
 
-  Future<List<Map<String, Object?>>> readData(String sql,
-      [List<Object?>? arguments]) async {
+  Future<List<Map<String, Object?>>> readData(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
     Database? mydb = await db;
     return await mydb!.rawQuery(sql, arguments);
   }
@@ -328,8 +337,12 @@ class SQLDB {
     List<Object?>? whereArgs,
   ]) async {
     Database? mydb = await db;
-    return await mydb!
-        .update(table, values, where: where, whereArgs: whereArgs);
+    return await mydb!.update(
+      table,
+      values,
+      where: where,
+      whereArgs: whereArgs,
+    );
   }
 
   Future<int> delete(

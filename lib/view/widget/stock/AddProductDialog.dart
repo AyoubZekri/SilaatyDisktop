@@ -168,10 +168,11 @@ class _ProductFormState extends State<_ProductForm> {
 
   void _generateBarcode() {
     setState(() {
-      widget.barcodeController.text = List.generate(
-        11,
-        (_) => Random().nextInt(10),
-      ).join();
+      if (widget.productType == 2) {
+        widget.barcodeController.text = List.generate(5, (_) => Random().nextInt(10)).join();
+      } else {
+        widget.barcodeController.text = '1' + List.generate(10, (_) => Random().nextInt(10)).join();
+      }
     });
   }
 
@@ -663,8 +664,15 @@ class _ProductFormState extends State<_ProductForm> {
                               textAlign: TextAlign.right,
                               hint: 'barcode_label'.tr,
                               keyboardType: TextInputType.number,
-                              validator: (val) =>
-                                  validInput(val ?? "", 13, 8, "number"),
+                              validator: (val) {
+                                if (widget.productType == 2) {
+                                  if (val == null || val.length != 5) {
+                                    return "يجب أن يتكون باركود الميزان من 5 أرقام".tr;
+                                  }
+                                  return null;
+                                }
+                                return validInput(val ?? "", 13, 8, "number");
+                              },
                               icon: Icons
                                   .qr_code_scanner_rounded, // Use prefix icon provided by CustemTextField
                             ),

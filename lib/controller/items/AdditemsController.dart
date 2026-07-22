@@ -61,13 +61,22 @@ class Additemscontroller extends GetxController {
 
   void typeProduct(int types) {
     type = types;
-
+    if (type == 2) {
+      if (barcodeMode == 0) {
+        barcodeController.text = generateBarcode();
+      } else if (barcodeController.text.length != 5) {
+        barcodeController.text = '';
+      }
+    }
     update();
   }
 
   String generateBarcode() {
     final random = Random();
-    return List.generate(11, (_) => random.nextInt(10)).join();
+    if (type == 2) {
+      return List.generate(5, (_) => random.nextInt(10)).join();
+    }
+    return '1' + List.generate(10, (_) => random.nextInt(10)).join();
   }
 
   addProduct() async {
@@ -80,6 +89,11 @@ class Additemscontroller extends GetxController {
           "لا يمكن أن تكون الكمية أقل من 1".tr,
           Colors.red,
         );
+        return;
+      }
+
+      if (type == 2 && barcodeController.text.length != 5) {
+        showSnackbar("error".tr, "يجب أن يتكون باركود الميزان من 5 أرقام", Colors.red);
         return;
       }
 
@@ -102,7 +116,7 @@ class Additemscontroller extends GetxController {
         'product_price_total_purchase': priceTotalPurchase.toString(),
         'product_price_purchase': pricePurchaseController.text,
         'type': type,
-        'codepar': barcodeController.text,
+        'codepar': (type == 2 && !barcodeController.text.startsWith('25')) ? '25' + barcodeController.text : barcodeController.text,
         "created_at": DateTime.now().toIso8601String(),
       };
 

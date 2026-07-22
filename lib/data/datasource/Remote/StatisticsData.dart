@@ -30,23 +30,15 @@ class Statisticsdata {
       AND i.invoies_date LIKE '$today%' AND  (t.transactions = 2 OR t.transactions IS NULL)
   ''', [id]);
 
-    final netProfit = await db.readData('''
-      SELECT IFNULL(SUM(invoice_profit - invoice_discount), 0) as netProfit
-      FROM (
-        SELECT 
-          i.uuid,
-          i.discount AS invoice_discount,
-          SUM(CASE WHEN s.type_sales = 2 THEN (s.unit_price - IFNULL(s.product_price_purchase, 0)) * s.quantity ELSE 0 END) AS invoice_profit
-        FROM invoies i
-        JOIN sales s ON s.invoie_uuid = i.uuid
-        LEFT JOIN transactions t ON t.uuid = i.Transaction_uuid
-        WHERE i.user_id = ?
-          AND i.invoies_date LIKE '$today%'
-          AND (t.transactions = 2 OR t.transactions IS NULL)
-          AND s.is_delete = 0
-        GROUP BY i.uuid
-      )
+    final totalPurchases = await db.readData('''
+      SELECT IFNULL(SUM(product_price_purchase * quantity), 0) as totalPurchases
+      FROM sales 
+      WHERE user_id = ?   
+      AND created_at LIKE '$today%' AND type_sales = 2 AND is_delete = 0
     ''', [id]);
+
+    final double income = ((totalIncome[0]["totalIncome"] ?? 0) as num).toDouble();
+    final double purchases = ((totalPurchases[0]["totalPurchases"] ?? 0) as num).toDouble();
 
     final lowStock = await db.readData('''
     SELECT COUNT(*) as lowStock
@@ -59,7 +51,7 @@ class Statisticsdata {
     return {
       "todayInvoices": invoicesCount[0]["count"] ?? 0,
       "todayIncome": totalIncome[0]["totalIncome"] ?? 0,
-      "todayNetProfit": netProfit[0]["netProfit"] ?? 0,
+      "todayNetProfit": income - purchases,
       "lowStockCount": lowStock[0]["lowStock"] ?? 0,
     };
   }
@@ -91,13 +83,21 @@ class Statisticsdata {
 
     // بيانات الرسم البياني
     String queryGraph = """
-    SELECT $groupBy AS x, SUM(s.subtotal) AS y
-    FROM invoies i
-    LEFT JOIN transactions t ON t.uuid = i.Transaction_uuid 
-    JOIN sales s ON s.invoie_uuid = i.uuid
-    WHERE i.user_id = ? 
-    AND $dateCondition AND (t.transactions IS NULL OR t.transactions = 2)
-    AND s.is_delete = 0
+    SELECT x, SUM(invoice_sales - invoice_discount) AS y
+    FROM (
+      SELECT 
+        $groupBy AS x,
+        i.uuid,
+        IFNULL(i.discount, 0) AS invoice_discount,
+        SUM(CASE WHEN s.type_sales = 2 THEN s.subtotal ELSE 0 END) AS invoice_sales
+      FROM invoies i
+      LEFT JOIN transactions t ON t.uuid = i.Transaction_uuid 
+      JOIN sales s ON s.invoie_uuid = i.uuid
+      WHERE i.user_id = ? 
+      AND $dateCondition AND (t.transactions IS NULL OR t.transactions = 2)
+      AND s.is_delete = 0
+      GROUP BY x, i.uuid
+    )
     GROUP BY x ORDER BY x
   """;
 
@@ -111,7 +111,7 @@ class Statisticsdata {
         i.uuid,
         i.discount AS invoice_discount,
         SUM(CASE WHEN s.type_sales = 2 THEN s.subtotal ELSE 0 END) AS invoice_sales,
-        SUM(CASE WHEN s.type_sales = 2 THEN (s.unit_price - IFNULL(s.product_price_purchase, 0)) * s.quantity ELSE 0 END) AS invoice_profit
+        SUM(CASE WHEN s.type_sales = 2 THEN (s.subtotal - (s.product_price_purchase * s.quantity)) ELSE 0 END) AS invoice_profit
       FROM invoies i
       JOIN sales s ON s.invoie_uuid = i.uuid
       LEFT JOIN transactions t ON t.uuid = i.Transaction_uuid
@@ -133,6 +133,13 @@ class Statisticsdata {
     final resultStats = await db.readData(queryStats, [id]);
     final resultExpenses = await db.readData(queryExpenses, [id]);
 
+    final sales = resultStats.isNotEmpty ? (resultStats.first["total_sales"] ?? 0) : 0;
+    final profit = resultStats.isNotEmpty ? (resultStats.first["total_profit"] ?? 0) : 0;
+    final exp = resultExpenses.isNotEmpty ? (resultExpenses.first["total_expenses"] ?? 0) : 0;
+    final salesDouble = sales is int ? sales.toDouble() : sales as double;
+    final profitDouble = profit is int ? profit.toDouble() : profit as double;
+    final expDouble = exp is int ? exp.toDouble() : exp as double;
+    
     return [
       {
         "chart": resultGraph.isEmpty
@@ -141,9 +148,9 @@ class Statisticsdata {
               ]
             : resultGraph,
         "stats": {
-              "total_sales": resultStats.isNotEmpty ? resultStats.first["total_sales"] ?? 0 : 0,
-              "total_profit": resultStats.isNotEmpty ? resultStats.first["total_profit"] ?? 0 : 0,
-              "total_expenses": resultExpenses.isNotEmpty ? resultExpenses.first["total_expenses"] ?? 0 : 0,
+              "total_sales": salesDouble,
+              "total_profit": profitDouble,
+              "total_expenses": expDouble,
             },
       }
     ];
@@ -188,7 +195,7 @@ class Statisticsdata {
       SELECT 
         s.invoie_uuid AS uuid,
         MAX(i.discount) AS invoice_discount,
-        SUM(CASE WHEN s.type_sales = 2 THEN (s.unit_price - IFNULL(s.product_price_purchase, 0)) * s.quantity ELSE 0 END) AS invoice_profit
+        SUM(CASE WHEN s.type_sales = 2 THEN (s.subtotal - (s.product_price_purchase * s.quantity)) ELSE 0 END) AS invoice_profit
       FROM sales s
       LEFT JOIN invoies i ON s.invoie_uuid = i.uuid
       WHERE s.user_id = ? ${sellerId != null ? (sellerId == -1 ? 'AND s.seller_id IS NULL' : 'AND s.seller_id = $sellerId') : ''} $whereClause2 AND s.is_delete = 0
@@ -270,7 +277,7 @@ class Statisticsdata {
     SELECT 
         period,
         IFNULL(SUM(invoice_sales), 0) AS total_sales,
-        IFNULL(SUM(invoice_profit - invoice_discount), 0) AS net_profit,
+        IFNULL(SUM(invoice_profit - invoice_discount), 0) - IFNULL(SUM(invoice_expenses), 0) AS net_profit,
         IFNULL(SUM(invoice_discount), 0) AS total_discount,
         IFNULL(SUM(invoice_expenses), 0) AS expenses,
         COUNT(DISTINCT uuid) AS total_invoices,
@@ -287,7 +294,7 @@ class Statisticsdata {
             strftime('$groupByFormat', COALESCE(i.created_at, s.created_at)) AS period,
             IFNULL(MAX(i.discount), 0) AS invoice_discount,
             SUM(CASE WHEN s.type_sales = 2 THEN s.unit_price * s.quantity ELSE 0 END) AS invoice_sales,
-            SUM(CASE WHEN s.type_sales = 2 THEN (s.unit_price - IFNULL(s.product_price_purchase, 0)) * s.quantity ELSE 0 END) AS invoice_profit,
+            SUM(CASE WHEN s.type_sales = 2 THEN (s.subtotal - (s.product_price_purchase * s.quantity)) ELSE 0 END) AS invoice_profit,
             MAX(CASE WHEN t.transactions = 1 THEN IFNULL(i.Payment_price, 0) - IFNULL(i.discount, 0) ELSE 0 END) AS invoice_expenses,
             SUM(CASE WHEN s.type_sales = 2 THEN s.quantity ELSE 0 END) AS items_sold,
             SUM(CASE WHEN s.type_sales = 3 THEN s.subtotal ELSE 0 END) AS revenue
@@ -312,7 +319,7 @@ class Statisticsdata {
       "summary": {
         "total_revenue":
             totalRevenue.isNotEmpty ? totalRevenue[0]['total_revenue'] : 0,
-        "net_profit": netProfit.isNotEmpty ? netProfit[0]['net_profit'] : 0,
+        "net_profit": (netProfit.isNotEmpty ? (netProfit[0]['net_profit'] as num) : 0) - (expenses.isNotEmpty ? (expenses[0]['total_expenses'] as num) : 0),
         "total_expenses":
             expenses.isNotEmpty ? expenses[0]['total_expenses'] : 0,
         "total_invoices":
@@ -329,7 +336,6 @@ class Statisticsdata {
   Future<Map<String, dynamic>> lowStock() async {
     final sql = '''
     SELECT 
-      p.uuid,
       p.product_name,
       p.product_quantity,
       p.created_at
