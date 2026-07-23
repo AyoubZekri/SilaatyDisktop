@@ -7,12 +7,12 @@ import '../../widget/cs/CSStatsBoard.dart';
 import '../../widget/cs/CSFilterBar.dart';
 import '../../widget/cs/CSTable.dart';
 
-class CustomersSuppliersScreen extends StatelessWidget {
-  const CustomersSuppliersScreen({super.key});
+class CustomersScreen extends StatelessWidget {
+  const CustomersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Get.put(Transactioncontroller());
+    Get.put(Transactioncontroller(initialType: 2));
     final sidebarController = Get.find<Siedbarcontroller>();
 
     return Obx(() {
@@ -28,7 +28,7 @@ class CustomersSuppliersScreen extends StatelessWidget {
             children: [
               // Page Header
               Text(
-                'manage_cs'.tr,
+                'customers'.tr,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w900,

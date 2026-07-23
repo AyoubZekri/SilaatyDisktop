@@ -458,29 +458,26 @@ class SaleCart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 textDirection: TextDirection.rtl,
                 children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      controller.isCashCustomer.value = true;
-                      controller.selectedUuid.value = '';
-                      controller.selectedName.value = '';
-                      controller.selectedFamilyName.value = '';
-                      controller.selectedCustomer.value = isPurchase
-                          ? 'unregistered_supplier'.tr
-                          : 'cash_customer'.tr;
-                      Get.back();
-                    },
-                    icon: Icon(
-                      isPurchase
-                          ? Icons.inventory_2_outlined
-                          : Icons.payments_outlined,
-                      size: 20,
+                  if (!isPurchase)
+                    TextButton.icon(
+                      onPressed: () {
+                        controller.isCashCustomer.value = true;
+                        controller.selectedUuid.value = '';
+                        controller.selectedName.value = '';
+                        controller.selectedFamilyName.value = '';
+                        controller.selectedCustomer.value = 'cash_customer'.tr;
+                        Get.back();
+                      },
+                      icon: const Icon(
+                        Icons.payments_outlined,
+                        size: 20,
+                      ),
+                      label: Text(
+                        'cash_customer'.tr,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      style: TextButton.styleFrom(foregroundColor: Colors.green),
                     ),
-                    label: Text(
-                      isPurchase ? 'unregistered_supplier'.tr : 'cash_customer'.tr,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    style: TextButton.styleFrom(foregroundColor: Colors.green),
-                  ),
                   TextButton.icon(
                     onPressed: () async {
                       final result = await Get.dialog(

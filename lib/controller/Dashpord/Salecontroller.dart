@@ -18,6 +18,8 @@ import 'package:flutter/services.dart';
 import '../../core/constant/imageassets.DART';
 import '../../core/functions/valiedinput.dart';
 import '../../view/widget/CustemTextField.dart';
+import '../../data/datasource/Remote/Prodact/Prodact_data.dart';
+import '../../core/class/Crud.dart';
 
 class SaleController extends GetxController {
   int? type;
@@ -146,6 +148,9 @@ class SaleController extends GetxController {
   }
 
   double getSalePrice(Map<String, dynamic> productData) {
+    // Access observable to prevent Obx error when returning early for type == 1
+    final _ = saleType.value;
+
     if (type == 1) {
       return double.tryParse(
             productData['product_price_purchase'].toString(),
@@ -686,6 +691,59 @@ class SaleController extends GetxController {
     update();
   }
 
+  void addNewProductDialogAndAssign() async {
+    // We open the AddProductDialog, wrapped or directly
+    // Since AddProductDialog is a widget, we need to import it where it's used.
+    // SaleController shouldn't ideally know about UI, but we can return the data from dialog.
+    // Actually, SaleController handles showing dialogs like showWeightDialog.
+    // However, AddProductDialog is in lib/view/widget/stock/AddProductDialog.dart
+    // Since we don't want cyclic imports, it's better to implement this in the UI (purchase_screen)
+    // and pass the result to `addProductWithQuantity` if successful.
+    // So let's create `addProductWithQuantity` instead.
+  }
+
+  void addProductWithQuantity(Map<String, dynamic> productData, double addedQuantity, {Map<String, dynamic>? draftPayload}) {
+    final uuid = productData['uuid'] ?? productData['id'] ?? '';
+    final name = productData['product_name'] ?? '';
+    final price = getSalePrice(productData);
+    final typeItem = productData['type'];
+
+    final existingIndex = selectedProducts.indexWhere((item) => item['uuid'] == uuid);
+
+    if (existingIndex != -1) {
+      double newQty = selectedProducts[existingIndex]['quantity'] + addedQuantity;
+      selectedProducts[existingIndex]['quantity'] = newQty;
+      selectedProducts[existingIndex]['total'] =
+          (type == 1 ? selectedProducts[existingIndex]['price_Purchase'] : selectedProducts[existingIndex]['price']) *
+          selectedProducts[existingIndex]['quantity'];
+      if (draftPayload != null) {
+        selectedProducts[existingIndex]['draft_payload'] = draftPayload;
+      }
+      selectedProducts[existingIndex] = Map<String, dynamic>.from(selectedProducts[existingIndex]);
+    } else {
+      selectedProducts.add({
+        "uuid": uuid,
+        "name": name,
+        "price": type == 1 ? 0.0 : price,
+        "price_Purchase": type == 1
+            ? price
+            : double.tryParse(productData['product_price_purchase'].toString()) ?? 0.0,
+        "quantity": addedQuantity,
+        "total": price * addedQuantity,
+        "type_item": typeItem,
+        "quantity_item": productData['product_quantity'],
+        "product_price": productData['product_price'],
+        "product_price_wholesale": productData['product_price_wholesale'],
+        "product_price_half_wholesale": productData['product_price_half_wholesale'],
+        if (draftPayload != null) "draft_payload": draftPayload,
+      });
+    }
+
+    _calculateTotals();
+    statusrequest = Statusrequest.success;
+    update();
+  }
+
   void gotoaddproductNewSale() async {
     final result = await Get.toNamed(
       Approutes.addProductSale,
@@ -769,6 +827,24 @@ class SaleController extends GetxController {
     }).toList();
 
     Saledata saledata = Saledata();
+    ProdactData prodactData = ProdactData(Get.find<Crud>());
+    
+    // Save drafted products first
+    for (var item in selectedProducts) {
+      if (item.containsKey('draft_payload')) {
+        var draft = item['draft_payload'] as Map<String, dynamic>;
+        var draftData = draft['draft_data'] as Map<String, Object?>;
+        var draftSale = draft['draft_data_sale'] as Map<String, Object?>;
+        var file = draft['file'] as File?;
+        
+        bool success = await prodactData.addProduct(draftData, draftSale, file);
+        if (!success) {
+          showSnackbar("error".tr, "error_adding_product".tr + ": ${draftData['product_name']}", Colors.red);
+          return;
+        }
+      }
+    }
+
     var result = await saledata.addSale(data, dataSale);
 
     if (result["status"] == 1) {
@@ -1124,12 +1200,13 @@ class SaleController extends GetxController {
   }
 
   void resetData() {
-    selectedCustomer.value = type == 1 ? 'مورد'.tr : 'العميل'.tr;
+    selectedCustomer.value = type == 1 ? 'اختر مورد'.tr : 'اختر عميل'.tr;
     selectedUuid.value = '';
     selectedName.value = '';
     selectedFamilyName.value = '';
     selectedProducts.clear();
     saleType.value = 1;
+    isCashCustomer.value = type != 1; // Force supplier selection for type 1
     discount.value = 0.0;
     totalallPrice = 0.0;
     totalItems = 0;
@@ -1161,7 +1238,8 @@ class SaleController extends GetxController {
   @override
   void onInit() {
     resetData();
-    selectedCustomer.value = type == 1 ? 'مورد'.tr : 'العميل'.tr;
+    selectedCustomer.value = type == 1 ? 'اختر مورد'.tr : 'اختر عميل'.tr;
+    isCashCustomer.value = type != 1; // Ensure this is also applied after type is passed
     print("=========================${selectedCustomer.value}");
     final arge = Get.arguments;
     print("=========================${arge}");

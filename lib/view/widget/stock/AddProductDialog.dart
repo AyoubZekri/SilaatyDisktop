@@ -20,8 +20,9 @@ import '../../../core/services/Services.dart';
 class AddProductDialog extends StatelessWidget {
   final bool isEdit;
   final Prodact.Data? product;
+  final bool isDraft;
 
-  const AddProductDialog({super.key, this.isEdit = false, this.product});
+  const AddProductDialog({super.key, this.isEdit = false, this.product, this.isDraft = false});
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +65,10 @@ class AddProductDialog extends StatelessWidget {
       );
     } else {
       return GetBuilder<Additemscontroller>(
-        builder: (controller) => _ProductForm(
+        init: Get.isRegistered<Additemscontroller>() ? null : Additemscontroller(),
+        builder: (controller) {
+          controller.isDraftMode = isDraft;
+          return _ProductForm(
           isEdit: false,
           nameController: controller.nameController,
           qtyController: controller.quantityController,
@@ -96,8 +100,8 @@ class AddProductDialog extends StatelessWidget {
           },
           file: controller.file,
           formKey: controller.formstate,
-        ),
-      );
+        );
+      });
     }
   }
 }

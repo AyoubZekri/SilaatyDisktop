@@ -7,8 +7,10 @@ import '../../core/constant/routes.dart';
 import '../../view/screen/Categories.dart';
 import '../../view/screen/Home.dart';
 import '../../view/screen/sale/sale.dart';
+import '../../view/screen/sale/purchase_screen.dart';
 import '../../view/screen/stock.dart';
-import '../../view/screen/C&S/C&S.dart';
+import '../../view/screen/C&S/customers_screen.dart';
+import '../../view/screen/C&S/suppliers_screen.dart';
 
 import '../../view/screen/sale/InvoiceList.dart';
 import '../../view/screen/Statistic/Statistic.dart';
@@ -74,13 +76,25 @@ class Siedbarcontroller extends GetxController {
     {
       'name': 'customers',
       'icon': Icons.people_outline,
-      'page': () => const CustomersSuppliersScreen(),
+      'page': () => const CustomersScreen(),
+      'subPages': [],
+    },
+    {
+      'name': 'suppliers',
+      'icon': Icons.local_shipping_outlined,
+      'page': () => const SuppliersScreen(),
       'subPages': [],
     },
     {
       'name': 'sale',
       'icon': Icons.point_of_sale_rounded,
       'page': () => const SaleScreen(),
+      'subPages': [],
+    },
+    {
+      'name': 'purchase',
+      'icon': Icons.shopping_cart_checkout_rounded,
+      'page': () => const PurchaseScreen(),
       'subPages': [],
     },
     {

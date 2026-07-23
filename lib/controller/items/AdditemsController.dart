@@ -59,6 +59,8 @@ class Additemscontroller extends GetxController {
     update();
   }
 
+  bool isDraftMode = false;
+
   void typeProduct(int types) {
     type = types;
     if (type == 2) {
@@ -97,7 +99,10 @@ class Additemscontroller extends GetxController {
         return;
       }
 
+      final String newProductUuid = Uuid().v4();
+      
       Map<String, Object?> data = {
+        "uuid": newProductUuid,
         "user_id": id,
         'product_name': nameController.text,
         'product_description': descriptionController.text,
@@ -137,16 +142,26 @@ class Additemscontroller extends GetxController {
       try {
         print("========================$selectedtypeuuid");
 
+        if (isDraftMode) {
+          final draftPayload = {
+            'draft_data': data,
+            'draft_data_sale': dataSale,
+            'file': file,
+          };
+          Get.back(result: draftPayload);
+          return;
+        }
+
         /// ندخل المنتج في SQLite مع الصورة + uuid + sync_queue
         final result = await prodactData.addProduct(data, dataSale, file);
 
         if (result == true) {
           Get.find<RefreshService>().fire();
 
-          Get.back(result: true);
+          Get.back(result: data);
           Future.delayed(Duration(milliseconds: 300), () {
             if (selectedCategoryId == 1) {
-              Get.back(result: true);
+              Get.back(result: data);
             }
             if (Get.isRegistered<Itemscontroller>()) {
               Get.find<Itemscontroller>().refreshProductsList();

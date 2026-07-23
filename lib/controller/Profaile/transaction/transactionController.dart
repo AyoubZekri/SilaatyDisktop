@@ -9,6 +9,9 @@ import 'package:get/get.dart';
 class Transactioncontroller extends GetxController {
   final Transactiondata transactiondata = Transactiondata(Get.find());
   String query = "";
+  final int? initialType;
+
+  Transactioncontroller({this.initialType});
 
   int get totalItems => transaction.length;
 
@@ -153,7 +156,7 @@ class Transactioncontroller extends GetxController {
 
   @override
   void onInit() {
-    type = Get.arguments?["type"];
+    type = initialType ?? Get.arguments?["type"];
     // إذا لم يتم تحديد النوع نجعله null ليعرض "الكل" أو 2 ليعرض "العملاء" كافتراضي
     if (type == 0) type = 2; // لتصحيح أي تحويلات قديمة لـ 0
     getTransactions();

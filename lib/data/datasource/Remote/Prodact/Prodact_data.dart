@@ -31,7 +31,7 @@ class ProdactData {
 
   Future<bool> addProduct(Map<String, Object?> data, Map<String, Object?> sale,
       [File? image]) async {
-    final String uuid = Uuid().v4();
+    final String uuid = data["uuid"] as String? ?? Uuid().v4();
     data["uuid"] = uuid;
     sale["product_uuid"] = uuid;
 

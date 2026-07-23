@@ -79,88 +79,8 @@ class CSFilterBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          // Tabs (Customers / Suppliers)
-          GetBuilder<Transactioncontroller>(
-            builder: (csController) {
-              return Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: fieldColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _buildTab(
-                      label: 'all'.tr,
-                      index: -1,
-                      isActive: csController.type == null,
-                      isDark: isDark,
-                      onTap: () => csController.changeTab(-1),
-                    ),
-                    _buildTab(
-                      label: 'suppliers'.tr,
-                      index: 1,
-                      isActive: csController.type == 1,
-                      isDark: isDark,
-                      onTap: () => csController.changeTab(1),
-                    ),
-                    _buildTab(
-                      label: 'customers'.tr,
-                      index: 2,
-                      isActive: csController.type == 2,
-                      isDark: isDark,
-                      onTap: () => csController.changeTab(2),
-                    ),
-                  ],
-                ),
-              );
-            }
-          ),
         ],
       );
     });
-  }
-
-  Widget _buildTab({
-    required String label,
-    required int index,
-    required bool isActive,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isActive
-              ? (isDark ? AppColor.surfaceDark : Colors.white)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: isActive
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isActive ? AppColor.primaryPurple : Colors.grey,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
   }
 }
