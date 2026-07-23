@@ -131,7 +131,7 @@ class SaleCart extends StatelessWidget {
                 color: controller.isCashCustomer.value
                     ? Colors.green.withOpacity(0.3)
                     : (isPurchase
-                          ? Colors.blue.withOpacity(0.3)
+                          ? AppColor.primaryPurple.withOpacity(0.3)
                           : AppColor.primaryPurple.withOpacity(0.3)),
                 width: 1,
               ),
@@ -141,7 +141,7 @@ class SaleCart extends StatelessWidget {
                       (controller.isCashCustomer.value
                               ? Colors.green
                               : (isPurchase
-                                    ? Colors.blue
+                                    ? AppColor.primaryPurple
                                     : AppColor.primaryPurple))
                           .withOpacity(0.05),
                   blurRadius: 10,
@@ -162,7 +162,7 @@ class SaleCart extends StatelessWidget {
                           (controller.isCashCustomer.value
                                   ? Colors.green
                                   : (isPurchase
-                                        ? Colors.blue
+                                        ? AppColor.primaryPurple
                                         : AppColor.primaryPurple))
                               .withOpacity(0.1),
                       child: Icon(
@@ -177,7 +177,7 @@ class SaleCart extends StatelessWidget {
                         color: controller.isCashCustomer.value
                             ? Colors.green
                             : (isPurchase
-                                  ? Colors.blue
+                                  ? AppColor.primaryPurple
                                   : AppColor.primaryPurple),
                       ),
                     ),
@@ -261,7 +261,7 @@ class SaleCart extends StatelessWidget {
                         decoration: BoxDecoration(
                           color:
                               (isPurchase
-                                      ? Colors.blue
+                                      ? AppColor.primaryPurple
                                       : AppColor.primaryPurple)
                                   .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
@@ -271,7 +271,7 @@ class SaleCart extends StatelessWidget {
                               ? Icons.local_shipping_rounded
                               : Icons.person_search_rounded,
                           color: isPurchase
-                              ? Colors.blue
+                              ? AppColor.primaryPurple
                               : AppColor.primaryPurple,
                           size: 20,
                         ),
@@ -428,7 +428,7 @@ class SaleCart extends StatelessWidget {
                                     ? Colors.white10
                                     : const Color(0xFFF8F9FA),
                                 foregroundColor: isPurchase
-                                    ? Colors.blue
+                                    ? AppColor.primaryPurple
                                     : AppColor.primaryPurple,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -509,7 +509,7 @@ class SaleCart extends StatelessWidget {
                     ),
                     style: TextButton.styleFrom(
                       foregroundColor: isPurchase
-                          ? Colors.blue
+                          ? AppColor.primaryPurple
                           : AppColor.primaryPurple,
                     ),
                   ),
@@ -640,7 +640,7 @@ class SaleCart extends StatelessWidget {
     SaleController controller,
   ) {
     final isPurchase = controller.type == 1;
-    final primaryColor = isPurchase ? Colors.blue : AppColor.primaryPurple;
+    final primaryColor = isPurchase ? AppColor.primaryPurple : AppColor.primaryPurple;
 
     final String name = item['name'] ?? 'unknown_product'.tr;
     final bool isWeighed = item['type_item'] == 2;
@@ -938,10 +938,10 @@ class SaleCart extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isPurchase
-                    ? Colors.blue
+                    ? AppColor.primaryPurple
                     : AppColor.primaryPurple,
                 elevation: 10,
-                shadowColor: (isPurchase ? Colors.blue : AppColor.primaryPurple)
+                shadowColor: (isPurchase ? AppColor.primaryPurple : AppColor.primaryPurple)
                     .withOpacity(0.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -976,7 +976,7 @@ class SaleCart extends StatelessWidget {
     Color textColor,
   ) {
     final isPurchase = controller.type == 1;
-    final primaryColor = isPurchase ? Colors.blue : AppColor.primaryPurple;
+    final primaryColor = isPurchase ? AppColor.primaryPurple : AppColor.primaryPurple;
 
     final dueInitial = controller.totalallPrice - controller.discount.value;
     final paymentController = TextEditingController(
